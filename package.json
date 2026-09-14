@@ -1,0 +1,61 @@
+{
+  "name": "polski-magazyn-broni",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Lokalny system ewidencji broni i amunicji dla polskich klubów i strzelnic.",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build --webpack",
+    "start": "next start",
+    "setup": "node --import tsx scripts/setup.ts",
+    "db:migrate": "node --import tsx scripts/migrate.ts",
+    "db:migrate:dev": "node --import tsx scripts/migrate.ts",
+    "db:seed": "node --import tsx prisma/seed.ts",
+    "db:seed:dev": "node --import tsx prisma/seed.ts --demo",
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "2.2.1",
+    "@prisma/client": "6.12.0",
+    "adm-zip": "0.6.1",
+    "better-sqlite3": "13.0.3",
+    "clsx": "2.1.1",
+    "date-fns": "4.4.0",
+    "jose": "6.2.12",
+    "lucide-react": "0.545.0",
+    "next": "16.3.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "tailwind-merge": "3.7.0",
+    "zod": "4.6.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/adm-zip": "0.5.8",
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "26.5.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.2.3",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.3.5",
+    "prisma": "6.12.0",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.13",
+    "typescript": "6.0.2",
+    "vitest": "4.1.11"
+  },
+  "prisma": {
+    "seed": "node --import tsx prisma/seed.ts"
+  }
+}

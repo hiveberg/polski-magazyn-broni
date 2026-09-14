@@ -1,0 +1,60 @@
+# Zależności i artefakty kompilacji
+node_modules/
+.next/
+out/
+dist/
+build/
+.turbo/
+
+# Testy, pokrycie i cache narzędzi
+coverage/
+playwright-report/
+blob-report/
+test-results/
+.nyc_output/
+.eslintcache
+*.tsbuildinfo
+
+# Logi i raporty awarii
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Pliki systemowe i edytory
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Lokalne pliki narzędzi AI generowane przez środowisko
+.agents/
+.codex/
+/AGENTS.md
+/CLAUDE.md
+
+# Materiały referencyjne użyte podczas projektowania — nie są częścią aplikacji
+/zasoby-projektowe/
+
+# Dane instalacji użytkownika
+data/*
+!data/.gitkeep
+!data/calibers.modern.json
+tmp/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+*.db-shm
+*.db-wal
+
+# Sekrety i lokalne nadpisania
+.env
+.env.*
+!.env.example
+
+# Lokalne dane platform hostingowych
+.vercel/

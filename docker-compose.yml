@@ -1,0 +1,15 @@
+services:
+  pmb:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:../data/database.sqlite
+      TZ: Europe/Warsaw
+    volumes:
+      - pmb-data:/app/data
+
+volumes:
+  pmb-data:

@@ -1,0 +1,552 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  AUTHORIZED
+}
+
+enum BookType {
+  WEAPON
+  AMMUNITION
+  WEAPON_ISSUE
+  AMMUNITION_ISSUE
+}
+
+enum BookStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum WeaponType {
+  HANDGUN
+  LONG_GUN
+}
+
+enum WeaponStatus {
+  IN_STORAGE
+  ISSUED
+  TRANSFERRED
+  WITHDRAWN
+  DEREGISTERED
+}
+
+enum WeaponRegisterEventType {
+  ACQUISITION
+  REGISTRATION
+  TRANSFER
+  WITHDRAWAL
+  DEREGISTRATION
+  CORRECTION
+}
+
+enum WeaponEventType {
+  ACQUIRED
+  REGISTERED
+  ISSUED
+  RETURNED
+  TRANSFERRED
+  WITHDRAWN
+  DEREGISTERED
+  CORRECTED
+  FLAGGED
+  FLAG_RESOLVED
+}
+
+enum IssueStatus {
+  ACTIVE
+  CLOSED
+  CANCELLED_BY_CORRECTION
+}
+
+enum AmmoLedgerKind {
+  ACQUISITION
+  ISSUE
+  RETURN
+  CONSUMPTION
+  CORRECTION
+}
+
+enum AmmoIssueEventType {
+  ISSUED
+  RETURNED
+  CONSUMED
+  EXTENDED
+  CORRECTED
+}
+
+enum DocumentType {
+  INVOICE
+  AGREEMENT
+  TRANSFER_DOCUMENT
+  WITHDRAWAL_DOCUMENT
+  AUTHORIZATION
+  OTHER
+}
+
+enum ConfirmationMethod {
+  PIN
+  SYSTEM
+}
+
+enum BackupType {
+  AUTO
+  MANUAL
+  PRE_RESTORE
+}
+
+enum BackupStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model User {
+  id                  String             @id @default(cuid())
+  firstName           String
+  lastName            String
+  login               String             @unique
+  passwordHash        String
+  pinHash             String?
+  role                UserRole           @default(AUTHORIZED)
+  active              Boolean            @default(true)
+  isAuthorized        Boolean            @default(false)
+  forcePasswordChange Boolean            @default(true)
+  isBootstrap         Boolean            @default(false)
+  pinFailedAttempts   Int                @default(0)
+  pinLockedUntil      DateTime?
+  lastLoginAt         DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  sessions            Session[]
+  authorization       UserAuthorization?
+
+  @@index([active, role], map: "idx_users_active_role")
+}
+
+model UserAuthorization {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  documentId String?
+  grantedAt  DateTime
+  expiresAt  DateTime?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  ipHash     String?
+  userAgent  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt], map: "idx_sessions_user_expires")
+}
+
+model RegisterBook {
+  id                String                    @id @default(cuid())
+  type              BookType
+  series            String                    @unique
+  name              String
+  status            BookStatus                @default(ACTIVE)
+  nextPosition      Int                       @default(1)
+  createdAt         DateTime                  @default(now())
+  closedAt          DateTime?
+  weapons           Weapon[]
+  weaponEntries     WeaponRegisterEntry[]
+  ammoEntries       AmmunitionRegisterEntry[]
+  weaponIssues      WeaponIssue[]
+  ammoIssues        AmmoIssue[]               @relation("AmmoIssueBook")
+  sourcedAmmoIssues AmmoIssue[]               @relation("AmmoSourceBook")
+
+  @@index([type, status], map: "idx_books_type_status")
+}
+
+model Caliber {
+  id            String                    @id @default(cuid())
+  canonicalName String                    @unique
+  active        Boolean                   @default(true)
+  source        String?
+  sourceId      String?
+  cartridgeType String?
+  metadata      Json?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+  aliases       CaliberAlias[]
+  weapons       Weapon[]
+  ammoEntries   AmmunitionRegisterEntry[]
+  ammoIssues    AmmoIssue[]
+
+  @@index([active, canonicalName], map: "idx_calibers_active_name")
+}
+
+model CaliberAlias {
+  id         String  @id @default(cuid())
+  caliberId  String
+  alias      String
+  normalized String  @unique
+  caliber    Caliber @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+
+  @@index([caliberId], map: "idx_caliber_aliases_caliber")
+}
+
+model Document {
+  id             String                    @id @default(cuid())
+  type           DocumentType
+  number         String?
+  documentDate   DateTime
+  description    String
+  parties        String?
+  createdById    String
+  createdByName  String
+  createdAt      DateTime                  @default(now())
+  attachments    Attachment[]
+  authorizations UserAuthorization[]
+  weapons        Weapon[]
+  weaponEntries  WeaponRegisterEntry[]
+  ammoEntries    AmmunitionRegisterEntry[]
+  weaponEvents   WeaponEvent[]
+
+  @@index([type, documentDate], map: "idx_documents_type_date")
+}
+
+model Attachment {
+  id           String    @id @default(cuid())
+  documentId   String?
+  storageName  String    @unique
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  sha256       String
+  uploadedById String
+  createdAt    DateTime  @default(now())
+  document     Document? @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@index([documentId], map: "idx_attachments_document")
+}
+
+model Weapon {
+  id                    String                     @id @default(cuid())
+  bookId                String
+  positionNo            Int
+  registryRef           String                     @unique
+  name                  String
+  brand                 String
+  caliberId             String
+  productionYear        Int?
+  weaponSeries          String?
+  serialNumber          String
+  otherIdentifyingMarks String?
+  accessories           String?
+  type                  WeaponType
+  photoAttachmentId     String?
+  acquisitionBasis      String
+  acquisitionDate       DateTime?
+  registeredAt          DateTime
+  certificateNumber     String?
+  notes                 String?
+  status                WeaponStatus               @default(IN_STORAGE)
+  acquisitionDocumentId String
+  createdAt             DateTime                   @default(now())
+  updatedAt             DateTime                   @updatedAt
+  book                  RegisterBook               @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  caliber               Caliber                    @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+  acquisitionDocument   Document                   @relation(fields: [acquisitionDocumentId], references: [id], onDelete: Restrict)
+  registerEntries       WeaponRegisterEntry[]
+  events                WeaponEvent[]
+  issues                WeaponIssue[]
+  verificationFlags     PhysicalVerificationFlag[]
+
+  @@unique([bookId, positionNo], map: "uq_weapon_book_position")
+  @@index([serialNumber], map: "idx_weapons_serial")
+  @@index([caliberId, status], map: "idx_weapons_caliber_status")
+  @@index([status, type], map: "idx_weapons_status_type")
+}
+
+model WeaponRegisterEntry {
+  id                 String                  @id @default(cuid())
+  weaponId           String
+  bookId             String
+  positionNo         Int
+  registryRef        String
+  eventType          WeaponRegisterEventType
+  effectiveAt        DateTime
+  snapshot           Json
+  basis              String
+  documentId         String?
+  createdById        String
+  createdByName      String
+  confirmedById      String?
+  confirmedAt        DateTime?
+  confirmationMethod ConfirmationMethod?
+  createdAt          DateTime                @default(now())
+  weapon             Weapon                  @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+  book               RegisterBook            @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  document           Document?               @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  corrections        CorrectionEvent[]
+
+  @@index([bookId, positionNo], map: "idx_weapon_entries_book_position")
+  @@index([weaponId, effectiveAt], map: "idx_weapon_entries_weapon_date")
+}
+
+model WeaponEvent {
+  id                 String              @id @default(cuid())
+  weaponId           String
+  type               WeaponEventType
+  effectiveAt        DateTime
+  snapshot           Json
+  basis              String?
+  documentId         String?
+  performedById      String
+  performedByName    String
+  confirmedById      String?
+  confirmedAt        DateTime?
+  confirmationMethod ConfirmationMethod?
+  relatedEntityType  String?
+  relatedEntityId    String?
+  createdAt          DateTime            @default(now())
+  weapon             Weapon              @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+  document           Document?           @relation(fields: [documentId], references: [id], onDelete: Restrict)
+
+  @@index([weaponId, effectiveAt], map: "idx_weapon_events_weapon_date")
+}
+
+model WeaponIssue {
+  id                     String       @id @default(cuid())
+  bookId                 String
+  positionNo             Int
+  registryRef            String       @unique
+  weaponId               String
+  status                 IssueStatus  @default(ACTIVE)
+  recipientName          String
+  recipientReference     String?
+  magazineCount          Int
+  issuedAt               DateTime
+  issuedById             String
+  issuedByName           String
+  issueConfirmedById     String
+  issueConfirmedAt       DateTime
+  returnedAt             DateTime?
+  returnedById           String?
+  returnedByName         String?
+  returnedFromName       String?
+  returnConfirmedById    String?
+  returnConfirmedAt      DateTime?
+  weaponNameSnapshot     String
+  weaponBrandSnapshot    String
+  caliberSnapshot        String
+  productionYearSnapshot Int?
+  weaponSeriesSnapshot   String?
+  serialNumberSnapshot   String
+  certificateSnapshot    String?
+  createdAt              DateTime     @default(now())
+  book                   RegisterBook @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  weapon                 Weapon       @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+  ammoIssues             AmmoIssue[]
+
+  @@unique([bookId, positionNo], map: "uq_weapon_issue_book_position")
+  @@index([weaponId, status], map: "idx_weapon_issues_weapon_status")
+  @@index([status, issuedAt], map: "idx_weapon_issues_status_date")
+}
+
+model AmmunitionRegisterEntry {
+  id                 String              @id @default(cuid())
+  bookId             String
+  positionNo         Int
+  registryRef        String              @unique
+  caliberId          String
+  ammunitionType     String
+  kind               AmmoLedgerKind
+  basis              String
+  documentId         String?
+  quantityIn         Int                 @default(0)
+  quantityOut        Int                 @default(0)
+  balanceAfter       Int
+  issueId            String?
+  effectiveAt        DateTime
+  createdById        String
+  createdByName      String
+  confirmedById      String?
+  confirmedAt        DateTime?
+  confirmationMethod ConfirmationMethod?
+  createdAt          DateTime            @default(now())
+  book               RegisterBook        @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  caliber            Caliber             @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+  document           Document?           @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  issue              AmmoIssue?          @relation(fields: [issueId], references: [id], onDelete: Restrict)
+  corrections        CorrectionEvent[]
+
+  @@unique([bookId, positionNo], map: "uq_ammo_entry_book_position")
+  @@index([bookId, caliberId, effectiveAt], map: "idx_ammo_entries_book_caliber_date")
+  @@index([caliberId, effectiveAt], map: "idx_ammo_entries_caliber_date")
+}
+
+model AmmoIssue {
+  id                  String                    @id @default(cuid())
+  bookId              String
+  sourceBookId        String
+  positionNo          Int
+  registryRef         String                    @unique
+  caliberId           String
+  ammunitionType      String
+  status              IssueStatus               @default(ACTIVE)
+  recipientName       String
+  recipientReference  String?
+  quantityIssued      Int
+  quantityReturned    Int                       @default(0)
+  quantityConsumed    Int?
+  issuedAt            DateTime
+  issuedById          String
+  issuedByName        String
+  issueConfirmedById  String
+  issueConfirmedAt    DateTime
+  closedAt            DateTime?
+  closedById          String?
+  closedByName        String?
+  returnConfirmedById String?
+  returnConfirmedAt   DateTime?
+  weaponIssueId       String?
+  parentIssueId       String?
+  caliberSnapshot     String
+  createdAt           DateTime                  @default(now())
+  book                RegisterBook              @relation("AmmoIssueBook", fields: [bookId], references: [id], onDelete: Restrict)
+  sourceBook          RegisterBook              @relation("AmmoSourceBook", fields: [sourceBookId], references: [id], onDelete: Restrict)
+  caliber             Caliber                   @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+  weaponIssue         WeaponIssue?              @relation(fields: [weaponIssueId], references: [id], onDelete: Restrict)
+  parentIssue         AmmoIssue?                @relation("AmmoIssueChain", fields: [parentIssueId], references: [id], onDelete: Restrict)
+  childIssues         AmmoIssue[]               @relation("AmmoIssueChain")
+  ledgerEntries       AmmunitionRegisterEntry[]
+  events              AmmoIssueEvent[]
+
+  @@unique([bookId, positionNo], map: "uq_ammo_issue_book_position")
+  @@index([status, issuedAt], map: "idx_ammo_issues_status_date")
+  @@index([caliberId, status], map: "idx_ammo_issues_caliber_status")
+}
+
+model AmmoIssueEvent {
+  id              String             @id @default(cuid())
+  issueId         String
+  type            AmmoIssueEventType
+  quantity        Int?
+  effectiveAt     DateTime
+  performedById   String
+  performedByName String
+  confirmedById   String?
+  confirmedAt     DateTime?
+  details         Json?
+  createdAt       DateTime           @default(now())
+  issue           AmmoIssue          @relation(fields: [issueId], references: [id], onDelete: Restrict)
+
+  @@index([issueId, effectiveAt], map: "idx_ammo_issue_events_issue_date")
+}
+
+model CorrectionEvent {
+  id                    String                   @id @default(cuid())
+  entityType            String
+  entityId              String
+  correctsWeaponEntryId String?
+  correctsAmmoEntryId   String?
+  previousSnapshot      Json
+  correctedValues       Json
+  reason                String
+  correctedById         String
+  correctedByName       String
+  correctedAt           DateTime
+  confirmedById         String
+  confirmationMethod    ConfirmationMethod       @default(PIN)
+  createdAt             DateTime                 @default(now())
+  correctsWeaponEntry   WeaponRegisterEntry?     @relation(fields: [correctsWeaponEntryId], references: [id], onDelete: Restrict)
+  correctsAmmoEntry     AmmunitionRegisterEntry? @relation(fields: [correctsAmmoEntryId], references: [id], onDelete: Restrict)
+
+  @@index([entityType, entityId], map: "idx_corrections_entity")
+}
+
+model AuditEvent {
+  id                String   @id @default(cuid())
+  sequence          Int      @unique
+  timestamp         DateTime
+  userId            String?
+  userSnapshot      String?
+  operation         String
+  entityType        String
+  entityId          String?
+  payload           Json
+  payloadHash       String
+  previousAuditHash String?
+  auditHash         String   @unique
+  sessionId         String?
+  requestMetadata   Json?
+  createdAt         DateTime @default(now())
+
+  @@index([timestamp], map: "idx_audit_timestamp")
+  @@index([entityType, entityId], map: "idx_audit_entity")
+}
+
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  userId    String?
+  login     String?
+  type      String
+  success   Boolean
+  details   Json?
+
+  @@index([timestamp, type], map: "idx_security_timestamp_type")
+}
+
+model BackupRecord {
+  id              String       @id @default(cuid())
+  type            BackupType
+  status          BackupStatus @default(PENDING)
+  initiatedById   String?
+  initiatedByName String?
+  filename        String
+  logicalPath     String
+  appVersion      String
+  schemaVersion   String
+  sha256          String?
+  auditHeadHash   String?
+  recordCounts    Json?
+  errorMessage    String?
+  createdAt       DateTime     @default(now())
+  completedAt     DateTime?
+
+  @@index([status, createdAt], map: "idx_backups_status_date")
+}
+
+model PhysicalVerificationFlag {
+  id             String    @id @default(cuid())
+  weaponId       String?
+  entityType     String
+  entityId       String
+  reason         String
+  createdAt      DateTime  @default(now())
+  createdById    String
+  createdByName  String
+  resolvedAt     DateTime?
+  resolvedById   String?
+  resolvedByName String?
+  weapon         Weapon?   @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+
+  @@index([resolvedAt, entityType], map: "idx_verification_open_type")
+}
+
+model SystemSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}

@@ -1,0 +1,1655 @@
+{
+  "version": 1,
+  "generatedFrom": "/Users/leszek/new repo/armted-his-gun/input_5/armted-historical-taxonomies-3.json",
+  "excludedAsVeryHistorical": [
+    "22 Extra Long",
+    "300 Sherwood",
+    "303 Savage",
+    "30-40 Krag",
+    "32 Long Colt",
+    "380 Long",
+    "38 Long Colt",
+    "38 Short Colt",
+    "41 Long Colt",
+    "44 Colt",
+    "6,5 x 52 Carcano",
+    "7,5 x 54 MAS",
+    "7,92 x 33 kurz",
+    "8 mm Gasser",
+    "9 mm Browning long"
+  ],
+  "calibers": [
+    {
+      "canonicalName": ".22 LR",
+      "aliases": [
+        "22 Long Rifle",
+        ".22 Long Rifle",
+        "5,6×15R mm",
+        "5,6x15R mm",
+        "5,6 x 15R mm",
+        "5.6×15R mm",
+        "5,6×15Rmm",
+        "5,6×15R",
+        "5.6x15R mm",
+        "5,6x15Rmm",
+        "5,6x15R",
+        "5.6 x 15R mm",
+        "5,6 x 15Rmm",
+        "5,6 x 15R",
+        "5.6x15R",
+        "5.6×15R",
+        "5.6 x 15R"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158715",
+      "cartridgeType": "Rimfire cartridges (transducer)",
+      "metadata": {
+        "originalName": "22 Long Rifle",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".22 WMR",
+      "aliases": [
+        ".22 Magnum",
+        "22 Magnum",
+        ".22 Winchester Magnum Rimfire",
+        "22 Winchester Magnum Rimfire"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".30-06 Springfield",
+      "aliases": [
+        "30-06",
+        ".30-06",
+        "7,62×63 mm",
+        "7,62x63 mm",
+        "7,62 x 63 mm",
+        "7.62×63 mm",
+        "7,62×63mm",
+        "7,62×63",
+        "7.62x63 mm",
+        "7,62x63mm",
+        "7,62x63",
+        "7.62 x 63 mm",
+        "7,62 x 63mm",
+        "7,62 x 63",
+        "7.62x63",
+        "7.62×63",
+        "7.62 x 63"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".38 Special",
+      "aliases": [
+        ".38 Spl",
+        "38 Spl",
+        ".38 S&W Special",
+        "38 S&W Special"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q24634",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "38 Special",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".40 S&W",
+      "aliases": [
+        ".40 Auto",
+        "40 Auto",
+        "10×22 mm",
+        "10x22 mm",
+        "10 x 22 mm",
+        "10×22mm",
+        "10×22",
+        "10x22mm",
+        "10x22",
+        "10 x 22mm",
+        "10 x 22"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158782",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "40 S&W",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".45 ACP",
+      "aliases": [
+        "45 Auto",
+        ".45 Auto",
+        "11,43×23 mm",
+        "11,43x23 mm",
+        "11,43 x 23 mm",
+        "11.43×23 mm",
+        "11,43×23mm",
+        "11,43×23",
+        "11.43x23 mm",
+        "11,43x23mm",
+        "11,43x23",
+        "11.43 x 23 mm",
+        "11,43 x 23mm",
+        "11,43 x 23",
+        "11.43x23",
+        "11.43×23",
+        "11.43 x 23"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158803",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "45 Auto",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".45 Colt",
+      "aliases": [
+        ".45 Long Colt",
+        "45 Long Colt"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q1820043",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "45 Colt",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".45-70 Government",
+      "aliases": [
+        "45-70 Govt."
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158787",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "45-70 Govt.",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".50 BMG",
+      "aliases": [
+        "50 Browning",
+        ".50 Browning",
+        "12,7×99 mm NATO",
+        "12,7x99 mm NATO",
+        "12,7 x 99 mm NATO",
+        "12.7×99 mm NATO",
+        "12,7×99mm NATO",
+        "12,7×99 NATO",
+        "12.7x99 mm NATO",
+        "12,7x99mm NATO",
+        "12,7x99 NATO",
+        "12.7 x 99 mm NATO",
+        "12,7 x 99mm NATO",
+        "12,7 x 99 NATO",
+        "12.7x99 NATO",
+        "12.7×99 NATO",
+        "12.7 x 99 NATO"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q171628",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "50 Browning",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".223 Remington",
+      "aliases": [
+        "223 Rem.",
+        "223 Rem",
+        ".223 Rem"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2076678",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "223 Rem.",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".270 Winchester",
+      "aliases": [
+        "270 Win",
+        ".270 Win"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".300 Winchester Magnum",
+      "aliases": [
+        "300 Win Mag",
+        ".300 Win Mag"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".308 Marlin Express",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545255",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "308 Marlin Express",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".308 Winchester",
+      "aliases": [
+        "308 Win",
+        ".308 Win"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".338 Federal",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545278",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "338 Federal",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".338 Lapua Magnum",
+      "aliases": [
+        "338 LM",
+        ".338 LM",
+        "8,6×70 mm",
+        "8,6x70 mm",
+        "8,6 x 70 mm",
+        "8.6×70 mm",
+        "8,6×70mm",
+        "8,6×70",
+        "8.6x70 mm",
+        "8,6x70mm",
+        "8,6x70",
+        "8.6 x 70 mm",
+        "8,6 x 70mm",
+        "8,6 x 70",
+        "338 Lapua"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".357 Magnum",
+      "aliases": [
+        ".357 Mag",
+        "357 Mag"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158754",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "357 Magnum",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".357 SIG",
+      "aliases": [
+        "9×22 mm",
+        "9x22 mm",
+        "9 x 22 mm",
+        "9×22mm",
+        "9×22",
+        "9x22mm",
+        "9x22",
+        "9 x 22mm",
+        "9 x 22"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158755",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "357 SIG",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".375 Ruger",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545308",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "375 Ruger",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".380 ACP",
+      "aliases": [
+        "9 mm Browning court",
+        "9mm Browning court",
+        ".380 Auto",
+        "380 Auto",
+        "9×17 mm",
+        "9x17 mm",
+        "9 x 17 mm",
+        "9×17mm",
+        "9×17",
+        "9x17mm",
+        "9x17",
+        "9 x 17mm",
+        "9 x 17",
+        "9 mm Browning Short",
+        "9mm Browning Short",
+        "9 mm Browning krótki",
+        "9mm Browning krótki"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158766",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "9 mm Browning court",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".410/76",
+      "aliases": [
+        "410 bore",
+        ".410 bore",
+        "36/76",
+        "kaliber 36"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": ".416 Barrett",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545334",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "416 Barrett",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".416 Rigby",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2510141",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "416 Rigby",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".416 Ruger",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545337",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "416 Ruger",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".444 Marlin",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545347",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "444 Marlin",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".450 Bushmaster",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545356",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "450 Bushmaster",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".450 Marlin",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4027900",
+      "cartridgeType": "Belted cartridges",
+      "metadata": {
+        "originalName": "450 Marlin",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".450 Rigby",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545357",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "450 Rigby",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".454 Casull",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158791",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "454 Casull",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".458 Lott",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q1813388",
+      "cartridgeType": "Belted cartridges",
+      "metadata": {
+        "originalName": "458 Lott",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": ".458 SOCOM",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545359",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "458 Socom",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "4,6×30 mm",
+      "aliases": [
+        "4,6 X 30",
+        "4,6×30",
+        "4,6x30",
+        "4,6 x 30",
+        "4.6 X 30",
+        "4.6×30",
+        "4.6x30",
+        "4.6 x 30"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q229873",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "4,6 X 30",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "5 mm / 35 SMc",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4641193",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "5 mm / 35 SMc",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "5,7×28 mm",
+      "aliases": [
+        "5,7 x 28",
+        "5,7×28",
+        "5,7x28",
+        "5.7 x 28",
+        "5.7×28",
+        "5.7x28"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q238461",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "5,7 x 28",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "5,45 x 18",
+      "aliases": [
+        "5.45 x 18",
+        "5.45×18",
+        "5.45x18"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q238418",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "5,45 x 18",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "5,45×39 mm",
+      "aliases": [
+        "5,45 x 39",
+        "5,45×39",
+        "5,45x39",
+        "5.45 x 39",
+        "5.45×39",
+        "5.45x39",
+        "5.45 mm Russian",
+        "5,45 mm Russian",
+        "5.45mm Russian"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q238437",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "5,45 x 39",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "5,56×45 mm NATO",
+      "aliases": [
+        "5.56 NATO",
+        "5,56 NATO",
+        "5.56x45",
+        "5.56×45",
+        "5.56 x 45",
+        "5,56x45",
+        "5,56×45",
+        "5,56 x 45",
+        "5,56x45 mm",
+        "5,56×45 mm",
+        "5,56 x 45 mm",
+        "5.56x45 mm",
+        "5,56x45mm",
+        "5.56×45 mm",
+        "5,56×45mm",
+        "5.56 x 45 mm",
+        "5,56 x 45mm",
+        "5.56x45 NATO",
+        "5.56×45 NATO",
+        "5.56 x 45 NATO",
+        "5,56x45 NATO",
+        "5,56×45 NATO",
+        "5,56 x 45 NATO",
+        "5.56 mm",
+        "5,56 mm",
+        "5.56mm"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "6 mm PPC",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q258947",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6 mm PPC",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 - 284 Norma",
+      "aliases": [
+        "6.5 - 284 Norma"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4031907",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6,5 - 284 Norma",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 Creedmoor",
+      "aliases": [
+        "6.5 Creedmoor",
+        "6,5 CM",
+        "6.5 CM"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "6,5 Grendel",
+      "aliases": [
+        "6.5 Grendel"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q245478",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6,5 Grendel",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 x 55 SE",
+      "aliases": [
+        "6.5 x 55 SE",
+        "6.5×55 SE",
+        "6.5x55 SE"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q245482",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6,5 x 55 SE",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 x 58 R",
+      "aliases": [
+        "6.5 x 58 R",
+        "6.5×58 R",
+        "6.5x58 R"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q104526061",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "6,5 x 58 R",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 x 65 R RWS",
+      "aliases": [
+        "6.5 x 65 R RWS",
+        "6.5×65 R RWS",
+        "6.5x65 R RWS"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q104526168",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "6,5 x 65 R RWS",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,5 x 65 RWS",
+      "aliases": [
+        "6.5 x 65 RWS",
+        "6.5×65 RWS",
+        "6.5x65 RWS"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q104526167",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6,5 x 65 RWS",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "6,8 Western",
+      "aliases": [
+        "6.8 Western"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q109317261",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "6,8 Western",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7 x 57",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q270069",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "7 x 57",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7-30 Waters",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4642860",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "7-30 Waters",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,5 FK",
+      "aliases": [
+        "7.5 FK"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q48989835",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "7,5 FK",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,5 x 55 Suisse",
+      "aliases": [
+        "7.5 x 55 Suisse",
+        "7.5×55 Suisse",
+        "7.5x55 Suisse"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259142",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "7,5 x 55 Suisse",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,62 x 53 R",
+      "aliases": [
+        "7.62 x 53 R",
+        "7.62×53 R",
+        "7.62x53 R"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q3439781",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "7,62 x 53 R",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,62×39 mm",
+      "aliases": [
+        "7,62 x 39",
+        "7,62×39",
+        "7,62x39",
+        "7.62 x 39",
+        "7.62×39",
+        "7.62x39",
+        "M43"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259196",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "7,62 x 39",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,62×51 mm NATO",
+      "aliases": [
+        "7.62×51mm NATO",
+        "7.62x51mm NATO",
+        "7.62 x 51mm NATO",
+        "7.62 NATO",
+        "7,62 NATO",
+        "7.62 x 51 mm NATO",
+        "7,62 x 51 NATO",
+        "7.62×51 mm NATO",
+        "7,62×51 NATO",
+        "7.62x51 mm NATO",
+        "7,62x51 NATO",
+        "7.62 x 51 NATO",
+        "7.62×51 NATO",
+        "7.62x51 NATO"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259210",
+      "cartridgeType": null,
+      "metadata": {
+        "originalName": "7.62×51mm NATO",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,62×54R mm",
+      "aliases": [
+        "7,62 x 54 R",
+        "7,62×54 R",
+        "7,62x54 R",
+        "7.62 x 54 R",
+        "7.62×54 R",
+        "7.62x54 R",
+        "7.62x54R",
+        "7.62×54R",
+        "7.62 x 54R",
+        "7,62x54R",
+        "7,62×54R",
+        "7,62 x 54R",
+        "7.62 Russian",
+        "7,62 Russian"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259199",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "7,62 x 54 R",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7,65 Parabellum",
+      "aliases": [
+        "7.65 Parabellum"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259237",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "7,65 Parabellum",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "7×64 mm",
+      "aliases": [
+        "7x64",
+        "7×64",
+        "7 x 64",
+        "7 × 64",
+        "7 mm Brenneke",
+        "7mm Brenneke"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "8 x 64 S",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q99876796",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "8 x 64 S",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "8×57 IS",
+      "aliases": [
+        "7,92×57",
+        "7,92x57",
+        "7,92 x 57",
+        "7.92×57",
+        "7.92x57",
+        "7.92 x 57",
+        "8 mm Mauser",
+        "8mm Mauser",
+        "8×57 JS",
+        "8x57 JS",
+        "8 x 57 JS"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "9 mm Makarov",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q277462",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "9 mm Makarov",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "9 x 21",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q649326",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "9 x 21",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "9 x 39",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q277494",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "9 x 39",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "9,3×62 mm",
+      "aliases": [
+        "9.3x62",
+        "9.3×62",
+        "9.3 x 62",
+        "9,3x62",
+        "9,3×62",
+        "9,3 x 62"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "9×19 mm Parabellum",
+      "aliases": [
+        "9 mm Luger",
+        "9mm Luger",
+        "9 mm",
+        "9mm",
+        "9x19",
+        "9×19",
+        "9 x 19",
+        "9 mm Parabellum",
+        "9mm Parabellum",
+        "9 Para"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q135550",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "9 mm Luger",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "10 mm Auto",
+      "aliases": [
+        "10 mm Automatic",
+        "10mm Automatic",
+        "10×25 mm",
+        "10x25 mm",
+        "10 x 25 mm",
+        "10×25mm",
+        "10×25",
+        "10x25mm",
+        "10x25",
+        "10 x 25mm",
+        "10 x 25"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q169130",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "10 mm Auto",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "12,7 x 108",
+      "aliases": [
+        "12.7 x 108",
+        "12.7×108",
+        "12.7x108"
+      ],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q171615",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "12,7 x 108",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "12/70",
+      "aliases": [
+        "12 gauge",
+        "12 GA",
+        "kaliber 12",
+        "12 bore"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "12/76",
+      "aliases": [
+        "12/76 Magnum",
+        "12 gauge Magnum",
+        "12 GA Magnum",
+        "12 Magnum"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "16/70",
+      "aliases": [
+        "16 gauge",
+        "16 GA",
+        "kaliber 16"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "17 HMR",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q591520",
+      "cartridgeType": "Rimfire cartridges (transducer)",
+      "metadata": {
+        "originalName": "17 HMR",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "17 Hornet",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545171",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "17 Hornet",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "20/70",
+      "aliases": [
+        "20 gauge",
+        "20 GA",
+        "kaliber 20"
+      ],
+      "source": "pmb-modern-supplement",
+      "sourceId": null,
+      "cartridgeType": null,
+      "metadata": {
+        "reason": "popular contemporary caliber absent from source taxonomy"
+      }
+    },
+    {
+      "canonicalName": "21 Sharp",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q136469308",
+      "cartridgeType": "Rimfire cartridges (transducer)",
+      "metadata": {
+        "originalName": "21 Sharp",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "22 Hornet",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158698",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "22 Hornet",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "22 Long",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q1056993",
+      "cartridgeType": "Rimfire cartridges (crusher)",
+      "metadata": {
+        "originalName": "22 Long",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "22 Short",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158701",
+      "cartridgeType": "Rimfire cartridges (transducer)",
+      "metadata": {
+        "originalName": "22 Short",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "30 Carbine",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q155194",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "30 Carbine",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "30 R Blaser",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158728",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "30 R Blaser",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "30 Super Carry",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q111082797",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "30 Super Carry",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "30 TC",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q16245319",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "30 TC",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "32 S&W",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2806388",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "32 S&W",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "32 S&W Long",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158733",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "32 S&W Long",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "35 Whelen",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545305",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "35 Whelen",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "38 S&W",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158764",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "38 S&W",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "45 Auto Rim",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2806391",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "45 Auto Rim",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "45 Blaser",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158794",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "45 Blaser",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "45 GAP",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158801",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "45 GAP",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "204 Ruger",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2806370",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "204 Ruger",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "218 Bee",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545180",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "218 Bee",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "219 Zipper",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545182",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "219 Zipper",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "220 Swift",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q2806376",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "220 Swift",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "257 Roberts",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545217",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "257 Roberts",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "300 AAC Blackout",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q1579701",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "300 AAC Blackout",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "300 Pegasus",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q13409802",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "300 Pegasus",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "300 Savage",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545249",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "300 Savage",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "303 British",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q259255",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "303 British",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "338 Marlin Express",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545280",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "338 Marlin Express",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "350 Legend",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q85719502",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "350 Legend",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "360 Buckhammer",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q116845650",
+      "cartridgeType": "Rimmed cartridges",
+      "metadata": {
+        "originalName": "360 Buckhammer",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "375 Chey Tac",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q19605914",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "375 Chey Tac",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "375 Hölderlin",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q110233053",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "375 Hölderlin",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "376 Steyr",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545312",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "376 Steyr",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "400 Legend",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q118899075",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "400 Legend",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "408 Chey Tac",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q158774",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "408 Chey Tac",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "416 TYR",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q110280922",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "416 TYR",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "460 Steyr",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q18404479",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "460 Steyr",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "475 Linebaugh",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545375",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "475 Linebaugh",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "480 Ruger",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545387",
+      "cartridgeType": "Pistol and revolver cartridges",
+      "metadata": {
+        "originalName": "480 Ruger",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    },
+    {
+      "canonicalName": "500 Jeffery",
+      "aliases": [],
+      "source": "armted-historical-taxonomies-3",
+      "sourceId": "Q4545386",
+      "cartridgeType": "Rimless cartridges",
+      "metadata": {
+        "originalName": "500 Jeffery",
+        "qualityStatus": "REVIEWED",
+        "publicationStatus": "REVIEW_REQUIRED"
+      }
+    }
+  ]
+}
