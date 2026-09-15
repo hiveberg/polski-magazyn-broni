@@ -37,9 +37,9 @@ async function seedDemo() {
   const user = await prisma.user.upsert({ where: { login: "jan.kowalski" }, update: { role: UserRole.AUTHORIZED, isAuthorized: true }, create: { firstName: "Jan", lastName: "Kowalski", login: "jan.kowalski", passwordHash, pinHash, role: UserRole.AUTHORIZED, active: true, isAuthorized: true, forcePasswordChange: false } });
   const books = await Promise.all([
     [BookType.WEAPON, "A", "Broń krótka"], [BookType.WEAPON, "B", "Broń długa"],
-    [BookType.AMMUNITION, "C", "Amunicja sportowa"], [BookType.AMMUNITION, "D", "Amunicja karabinowa"],
-    [BookType.WEAPON_ISSUE, "WB", "Wydawanie broni"], [BookType.AMMUNITION_ISSUE, "WA", "Wydawanie amunicji"],
-  ].map(([type, series, name]) => prisma.registerBook.upsert({ where: { series: String(series) }, update: {}, create: { type: type as BookType, series: String(series), name: String(name) } })));
+    [BookType.AMMUNITION, "A", "Amunicja sportowa"], [BookType.AMMUNITION, "B", "Amunicja karabinowa"],
+    [BookType.WEAPON_ISSUE, "A", "Wydawanie broni"], [BookType.AMMUNITION_ISSUE, "A", "Wydawanie amunicji"],
+  ].map(([type, series, name]) => prisma.registerBook.upsert({ where: { type_series: { type: type as BookType, series: String(series) } }, update: {}, create: { type: type as BookType, series: String(series), name: String(name) } })));
   const [weaponA, weaponB, ammoC, ammoD] = books;
   const document = await prisma.document.upsert({ where: { id: "demo-acquisition" }, update: {}, create: { id: "demo-acquisition", type: DocumentType.INVOICE, number: "FV/DEMO/2026", documentDate: new Date("2026-09-01T10:00:00Z"), description: "Dokument demonstracyjny", createdById: user.id, createdByName: "Jan Kowalski" } });
   const caliberNames = ["9×19 mm Parabellum", ".45 ACP", ".223 Remington", "7,62×39 mm", ".308 Winchester", "12/70"];

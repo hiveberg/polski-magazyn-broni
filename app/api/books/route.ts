@@ -17,8 +17,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     await assertSameOrigin(request); const actor = await requireApiUser({ admin: true }); const input = bookSchema.parse(await request.json());
-    const existing = await prisma.registerBook.findUnique({ where: { series: input.series } });
-    if (existing) throw new DomainError(`Seria ${input.series} jest już używana.`, "DUPLICATE_BOOK_SERIES");
+    const existing = await prisma.registerBook.findUnique({ where: { type_series: { type: input.type, series: input.series } } });
+    if (existing) throw new DomainError(`Seria ${input.series} jest już używana dla tego typu księgi.`, "DUPLICATE_BOOK_SERIES");
     const book = await prisma.$transaction(async (tx) => {
       const created = await tx.registerBook.create({ data: input });
       await appendAudit(tx, { userId: actor.id, userSnapshot: `${actor.firstName} ${actor.lastName}`, operation: "BOOK_CREATED", entityType: "RegisterBook", entityId: created.id, sessionId: actor.sessionId, payload: input });

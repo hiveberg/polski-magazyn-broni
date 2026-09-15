@@ -17,6 +17,7 @@ for (const { command, args } of commands) {
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
-console.log("\nPolski Magazyn Broni jest gotowy.");
+console.log("\nPMBP — Polski Magazyn Broni Palnej jest gotowy.");
+console.log("Strona projektu: https://pmbp.pl");
 console.log("Pierwsze logowanie: admin / admin (system wymusi utworzenie właściwego administratora). ");
 console.log("Uruchom: npm run dev");

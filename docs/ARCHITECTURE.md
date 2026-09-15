@@ -1,6 +1,6 @@
 # Architektura
 
-PMB jest monolitem local-first. Jedna instancja Next.js obsługuje interfejs, uwierzytelnianie i API, serwisy domenowe wykonują reguły biznesowe, Prisma zapisuje stan w SQLite, a załączniki i backupy pozostają na lokalnym dysku.
+PMBP jest monolitem local-first. Jedna instancja Next.js obsługuje interfejs, uwierzytelnianie i API, serwisy domenowe wykonują reguły biznesowe, Prisma zapisuje stan w SQLite, a załączniki i backupy pozostają na lokalnym dysku.
 
 ```text
 Przeglądarka

@@ -10,7 +10,7 @@ import { DomainError } from "@/lib/errors";
 import type { CurrentUser } from "@/lib/auth/session";
 
 const APP_VERSION = "1.0.0";
-const SCHEMA_VERSION = "20260914010000_init";
+const SCHEMA_VERSION = "20260914143000_ammo_reservations";
 
 async function listFiles(base: string, dir = base): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
@@ -46,13 +46,13 @@ export async function createBackup(type: "AUTO" | "MANUAL" | "PRE_RESTORE", acto
     if (integrity !== "ok" || foreignKeys.length) throw new Error("Migawka SQLite nie przeszła kontroli integralności.");
     const uploadFiles = await listFiles(uploadsPath);
     const fileHashes: Record<string, string> = { "database.sqlite": sha256(await readFile(snapshotPath)) };
-    for (const file of uploadFiles) fileHashes[`attachments/${file}`] = sha256(await readFile(safeChild(uploadsPath, file)));
-    const [audit, users, weapons, ammoEntries, weaponIssues, ammoIssues, documents] = await Promise.all([verifyAuditChain(), prisma.user.count(), prisma.weapon.count(), prisma.ammunitionRegisterEntry.count(), prisma.weaponIssue.count(), prisma.ammoIssue.count(), prisma.document.count()]);
+    for (const file of uploadFiles) fileHashes[`uploads/${file}`] = sha256(await readFile(safeChild(uploadsPath, file)));
+    const [audit, users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages] = await Promise.all([verifyAuditChain(), prisma.user.count(), prisma.weapon.count(), prisma.ammunitionRegisterEntry.count(), prisma.weaponIssue.count(), prisma.ammoIssue.count(), prisma.ammoIssueAllocation.count(), prisma.document.count(), prisma.attachment.count(), prisma.weaponImage.count()]);
     if (!audit.valid) throw new Error(`Łańcuch audytu jest niespójny od wpisu ${audit.brokenAt}.`);
-    const manifest = { format: "pmb-backup", version: 1, appVersion: APP_VERSION, schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), backupType: type, hashes: fileHashes, counts: { users, weapons, ammoEntries, weaponIssues, ammoIssues, documents }, auditHeadHash: audit.headHash };
+    const manifest = { format: "pmb-backup", version: 1, appVersion: APP_VERSION, schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), backupType: type, hashes: fileHashes, counts: { users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages }, auditHeadHash: audit.headHash };
     const zip = new AdmZip();
     zip.addLocalFile(snapshotPath, "", "database.sqlite");
-    for (const file of uploadFiles) zip.addLocalFile(safeChild(uploadsPath, file), `attachments/${dirname(file) === "." ? "" : dirname(file)}`);
+    for (const file of uploadFiles) zip.addLocalFile(safeChild(uploadsPath, file), `uploads/${dirname(file) === "." ? "" : dirname(file)}`);
     zip.addFile("manifest.json", Buffer.from(JSON.stringify(manifest, null, 2) + "\n"));
     await new Promise<void>((resolveWrite, reject) => zip.writeZip(finalPath, (error) => error ? reject(error) : resolveWrite()));
     const validation = new AdmZip(finalPath);
@@ -84,7 +84,7 @@ export async function restoreBackup(buffer: Buffer, actor: CurrentUser) {
   for (const entry of entries) if (entry.entryName.startsWith("/") || entry.entryName.includes("..") || entry.entryName.includes("\\")) throw new DomainError("Backup zawiera niedozwoloną ścieżkę.", "UNSAFE_BACKUP");
   const manifestEntry = zip.getEntry("manifest.json");
   const databaseEntry = zip.getEntry("database.sqlite");
-  if (!manifestEntry || !databaseEntry) throw new DomainError("To nie jest kompletny backup Polski Magazyn Broni.", "INVALID_BACKUP");
+  if (!manifestEntry || !databaseEntry) throw new DomainError("To nie jest kompletny backup PMBP — Polskiego Magazynu Broni Palnej.", "INVALID_BACKUP");
   const manifest = JSON.parse(manifestEntry.getData().toString("utf8")) as { format: string; version: number; schemaVersion: string; hashes: Record<string, string> };
   if (manifest.format !== "pmb-backup" || manifest.version !== 1) throw new DomainError("Nieobsługiwany format backupu.", "UNSUPPORTED_BACKUP");
   if (manifest.schemaVersion !== SCHEMA_VERSION) throw new DomainError(`Backup ma wersję schematu ${manifest.schemaVersion}; aplikacja wymaga ${SCHEMA_VERSION}.`, "SCHEMA_MISMATCH");
@@ -107,8 +107,8 @@ export async function restoreBackup(buffer: Buffer, actor: CurrentUser) {
   const rollbackDb = `${liveDb}.restore-rollback`;
   const stagedUploads = join(workDir, "uploads");
   await mkdir(stagedUploads, { recursive: true });
-  for (const entry of entries.filter((item) => item.entryName.startsWith("attachments/") && !item.isDirectory)) {
-    const rel = entry.entryName.slice("attachments/".length);
+  for (const entry of entries.filter((item) => item.entryName.startsWith("uploads/") && !item.isDirectory)) {
+    const rel = entry.entryName.slice("uploads/".length);
     const destination = safeChild(stagedUploads, rel);
     await mkdir(dirname(destination), { recursive: true });
     await writeFile(destination, entry.getData());

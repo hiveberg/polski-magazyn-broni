@@ -5,8 +5,8 @@
 Backup jest plikiem ZIP zawierającym:
 
 - spójną migawkę `database.sqlite` utworzoną mechanizmem backupu SQLite;
-- katalog `attachments/`;
-- `manifest.json` z wersją aplikacji i schematu, czasem utworzenia, licznikami rekordów, hashem głowy audytu oraz sumą SHA-256 każdego pliku.
+- katalog `uploads/` zachowujący podkatalogi `documents/` i `weapons/`;
+- `manifest.json` z wersją aplikacji i schematu, czasem utworzenia, licznikami rekordów (w tym blokad amunicji), hashem głowy audytu oraz sumą SHA-256 każdego pliku.
 
 Po zapisaniu ZIP aplikacja ponownie go otwiera, sprawdza wymagane wpisy i sumy. Migawka bazy przechodzi `integrity_check` oraz `foreign_key_check`.
 
@@ -24,11 +24,11 @@ Restore jest operacją administracyjną z jawnym potwierdzeniem `ODTWÓRZ`.
 2. Weryfikuje wszystkie sumy oraz integralność kandydującej bazy.
 3. Tworzy automatyczny backup `PRE_RESTORE` bieżących danych.
 4. Rozłącza Prisma i opróżnia WAL.
-5. Podmienia bazę oraz załączniki, zachowując lokalny rollback do końca kontroli.
+5. Podmienia bazę oraz wszystkie uploady (załączniki dokumentów i zdjęcia broni), zachowując lokalny rollback do końca kontroli.
 6. Ponownie sprawdza bazę; przy błędzie przywraca poprzedni plik i załączniki.
 
 Po udanym restore zrestartuj proces aplikacji, aby odświeżyć wszystkie długowieczne połączenia. Nie odtwarzaj paczki z niezaufanego źródła.
 
 ## Awaria całego hosta
 
-Zainstaluj tę samą wersję PMB, skopiuj zweryfikowany ZIP z zewnętrznego nośnika do bezpiecznej lokalizacji, wykonaj bazowy setup, zaloguj się jako administrator i użyj funkcji restore. Zachowaj oryginalny nośnik tylko do odczytu do czasu zakończenia kontroli magazynu.
+Zainstaluj tę samą wersję PMBP, skopiuj zweryfikowany ZIP z zewnętrznego nośnika do bezpiecznej lokalizacji, wykonaj bazowy setup, zaloguj się jako administrator i użyj funkcji restore. Zachowaj oryginalny nośnik tylko do odczytu do czasu zakończenia kontroli magazynu.

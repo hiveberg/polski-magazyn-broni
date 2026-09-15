@@ -9,6 +9,6 @@ export default defineConfig({
     url: "http://127.0.0.1:3107/login",
     timeout: 120_000,
     reuseExistingServer: false,
-    env: { DATABASE_URL: "file:../tmp/e2e-database.sqlite" },
+    env: { DATABASE_URL: "file:../tmp/e2e-database.sqlite", PMB_DATA_DIR: "tmp/e2e-data", NEXT_DIST_DIR: ".next-e2e" },
   },
 });

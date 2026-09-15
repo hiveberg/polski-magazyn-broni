@@ -2,7 +2,10 @@ import { dirname, isAbsolute, resolve, sep } from "node:path";
 import { mkdir } from "node:fs/promises";
 
 const root = process.cwd();
-export const dataPath = resolve(root, "data");
+const configuredDataPath = process.env.PMB_DATA_DIR;
+export const dataPath = configuredDataPath
+  ? (isAbsolute(configuredDataPath) ? configuredDataPath : resolve(root, configuredDataPath))
+  : resolve(root, "data");
 export const uploadsPath = resolve(dataPath, "uploads");
 export const backupsPath = resolve(dataPath, "backups");
 export const logsPath = resolve(dataPath, "logs");

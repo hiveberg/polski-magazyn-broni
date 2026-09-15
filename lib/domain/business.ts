@@ -3,9 +3,11 @@ import { prisma, prepareDatabase } from "@/lib/db";
 import { DomainError } from "@/lib/errors";
 import { appendAudit } from "@/lib/domain/audit";
 import { registryRef } from "@/lib/domain/registers";
+import { planAmmoAllocation } from "@/lib/ammunition-allocation";
+import { ammoStockKey, getAmmoStockBalances } from "@/lib/ammunition-stock";
 import { confirmPin } from "@/lib/auth/pin";
 import type { CurrentUser } from "@/lib/auth/session";
-import type { ammoAcquisitionSchema, issueAmmoSchema, issueWeaponSchema, returnAmmoSchema, returnWeaponSchema, weaponInputSchema } from "@/lib/validation/schemas";
+import type { ammoAcquisitionSchema, issueAmmoSchema, issueWeaponSchema, returnAmmoSchema, returnWeaponSchema, topUpAmmoSchema, weaponInputSchema } from "@/lib/validation/schemas";
 import type { z } from "zod";
 
 type Actor = CurrentUser;
@@ -14,6 +16,7 @@ type AmmoAcquisitionInput = z.infer<typeof ammoAcquisitionSchema>;
 type IssueWeaponInput = z.infer<typeof issueWeaponSchema>;
 type ReturnWeaponInput = z.infer<typeof returnWeaponSchema>;
 type IssueAmmoInput = z.infer<typeof issueAmmoSchema>;
+type TopUpAmmoInput = z.infer<typeof topUpAmmoSchema>;
 type ReturnAmmoInput = z.infer<typeof returnAmmoSchema>;
 
 const actorName = (actor: Actor) => `${actor.firstName} ${actor.lastName}`;
@@ -32,25 +35,41 @@ async function ammoBalance(tx: Prisma.TransactionClient, bookId: string, caliber
   return (totals._sum.quantityIn ?? 0) - (totals._sum.quantityOut ?? 0);
 }
 
-async function createAmmoIssueTx(tx: Prisma.TransactionClient, input: Omit<IssueAmmoInput, "pin">, actor: Actor, confirmedAt: Date, weaponIssueId?: string) {
-  const sourceBook = await tx.registerBook.findUnique({ where: { id: input.sourceBookId } });
-  if (!sourceBook || sourceBook.type !== "AMMUNITION" || sourceBook.status !== "ACTIVE") throw new DomainError("Księga źródłowa amunicji jest niedostępna.", "INVALID_AMMO_BOOK");
+type CreateAmmoIssueInput = Omit<IssueAmmoInput, "pin">;
+
+async function createAmmoIssueTx(tx: Prisma.TransactionClient, input: CreateAmmoIssueInput, actor: Actor, confirmedAt: Date, weaponIssueId?: string) {
   const caliber = await tx.caliber.findUnique({ where: { id: input.caliberId } });
   if (!caliber?.active) throw new DomainError("Wybrany kaliber jest nieaktywny.", "INVALID_CALIBER");
-  const available = await ammoBalance(tx, sourceBook.id, caliber.id);
-  if (available < input.quantity) throw new DomainError(`Nie można wydać ${input.quantity} szt. amunicji. Dostępny stan: ${available} szt.`, "INSUFFICIENT_AMMO");
+  if (input.sourceBookId) {
+    const selectedSource = await tx.registerBook.findUnique({ where: { id: input.sourceBookId } });
+    if (!selectedSource || selectedSource.type !== "AMMUNITION" || selectedSource.status !== "ACTIVE") throw new DomainError("Wskazana księga źródłowa amunicji jest niedostępna.", "INVALID_AMMO_BOOK");
+  }
+  const sourceBooks = await tx.registerBook.findMany({ where: { type: "AMMUNITION", status: "ACTIVE" }, select: { id: true, series: true, name: true }, orderBy: { series: "asc" } });
+  const balances = await getAmmoStockBalances(tx, { bookIds: sourceBooks.map((book) => book.id), caliberId: caliber.id });
+  const stocks = sourceBooks.map((book) => ({ ...book, bookId: book.id, available: balances.get(ammoStockKey(book.id, caliber.id))?.available ?? 0 }));
+  const plan = planAmmoAllocation(stocks, input.quantity, input.sourceBookId);
+  if (!plan.complete) {
+    const scope = input.sourceBookId ? "w wybranej księdze" : "łącznie we wszystkich aktywnych księgach";
+    throw new DomainError(`Nie można wydać ${input.quantity} szt. amunicji. Dostępny stan ${scope}: ${plan.available} szt.`, "INSUFFICIENT_AMMO");
+  }
   if (input.parentIssueId) {
     const parent = await tx.ammoIssue.findUnique({ where: { id: input.parentIssueId } });
     if (!parent || parent.status !== "ACTIVE" || parent.caliberId !== caliber.id) throw new DomainError("Poprzednie wydanie nie jest aktywne albo ma inny kaliber.", "INVALID_PARENT_ISSUE");
-    await tx.ammoIssue.update({ where: { id: parent.id }, data: { status: "CLOSED", closedAt: confirmedAt, closedById: actor.id, closedByName: actorName(actor), quantityConsumed: parent.quantityIssued - parent.quantityReturned } });
+    weaponIssueId ??= parent.weaponIssueId ?? undefined;
+    await closeAmmoIssueTx(tx, parent.id, 0, actor, confirmedAt);
     await tx.ammoIssueEvent.create({ data: { issueId: parent.id, type: "EXTENDED", effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt, details: { nextQuantity: input.quantity } } });
   }
   const issuePos = await allocatePosition(tx, input.bookId, "AMMUNITION_ISSUE");
-  const issue = await tx.ammoIssue.create({ data: { bookId: issuePos.book.id, sourceBookId: sourceBook.id, positionNo: issuePos.positionNo, registryRef: issuePos.registryRef, caliberId: caliber.id, ammunitionType: input.ammunitionType, recipientName: input.recipientName, recipientReference: input.recipientReference, quantityIssued: input.quantity, issuedAt: confirmedAt, issuedById: actor.id, issuedByName: actorName(actor), issueConfirmedById: actor.id, issueConfirmedAt: confirmedAt, weaponIssueId, parentIssueId: input.parentIssueId, caliberSnapshot: caliber.canonicalName } });
-  const ledgerPos = await allocatePosition(tx, sourceBook.id, "AMMUNITION");
-  await tx.ammunitionRegisterEntry.create({ data: { bookId: sourceBook.id, positionNo: ledgerPos.positionNo, registryRef: ledgerPos.registryRef, caliberId: caliber.id, ammunitionType: input.ammunitionType, kind: "ISSUE", basis: weaponIssueId ? "Wydanie wraz z bronią" : "Wydanie amunicji", quantityOut: input.quantity, balanceAfter: available - input.quantity, issueId: issue.id, effectiveAt: confirmedAt, createdById: actor.id, createdByName: actorName(actor), confirmedById: actor.id, confirmedAt, confirmationMethod: "PIN" } });
-  await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "ISSUED", quantity: input.quantity, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt } });
-  return issue;
+  const primarySourceId = plan.allocations[0].bookId;
+  const issue = await tx.ammoIssue.create({ data: { bookId: issuePos.book.id, sourceBookId: primarySourceId, positionNo: issuePos.positionNo, registryRef: issuePos.registryRef, caliberId: caliber.id, ammunitionType: input.ammunitionType, recipientName: input.recipientName, recipientReference: input.recipientReference, quantityIssued: input.quantity, issuedAt: confirmedAt, issuedById: actor.id, issuedByName: actorName(actor), issueConfirmedById: actor.id, issueConfirmedAt: confirmedAt, weaponIssueId, parentIssueId: input.parentIssueId, caliberSnapshot: caliber.canonicalName } });
+  const allocations = [] as { bookId: string; bookSeries: string; bookName: string; quantity: number }[];
+  for (const [index, allocation] of plan.allocations.entries()) {
+    const sourceBook = stocks.find((stock) => stock.id === allocation.bookId)!;
+    await tx.ammoIssueAllocation.create({ data: { issueId: issue.id, bookId: sourceBook.id, caliberId: caliber.id, sequence: index + 1, quantity: allocation.quantity } });
+    allocations.push({ bookId: sourceBook.id, bookSeries: sourceBook.series, bookName: sourceBook.name, quantity: allocation.quantity });
+  }
+  await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "ISSUED", quantity: input.quantity, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt, details: json({ allocations }) } });
+  return { ...issue, allocations };
 }
 
 export async function addWeapon(input: WeaponInput, actor: Actor) {
@@ -126,22 +145,27 @@ export async function returnWeapon(input: ReturnWeaponInput, actor: Actor) {
 }
 
 async function closeAmmoIssueTx(tx: Prisma.TransactionClient, issueId: string, returnedQuantity: number, actor: Actor, confirmedAt: Date) {
-  const issue = await tx.ammoIssue.findUnique({ where: { id: issueId }, include: { caliber: true } });
+  const issue = await tx.ammoIssue.findUnique({ where: { id: issueId }, include: { caliber: true, allocations: { include: { book: true }, orderBy: { sequence: "asc" } } } });
   if (!issue || issue.status !== "ACTIVE") throw new DomainError("Wydanie amunicji nie jest aktywne.", "ISSUE_NOT_ACTIVE");
   if (returnedQuantity < 0 || returnedQuantity > issue.quantityIssued) throw new DomainError(`Zwrot musi mieścić się między 0 a ${issue.quantityIssued} szt.`, "INVALID_RETURN_QUANTITY");
-  const alreadyReturned = issue.quantityReturned;
-  if (returnedQuantity < alreadyReturned) throw new DomainError("Nowa ilość zwrotu nie może być mniejsza od już zarejestrowanej.", "INVALID_RETURN_QUANTITY");
-  const deltaReturn = returnedQuantity - alreadyReturned;
-  if (deltaReturn > 0) {
-    const current = await ammoBalance(tx, issue.sourceBookId, issue.caliberId);
-    const pos = await allocatePosition(tx, issue.sourceBookId, "AMMUNITION");
-    await tx.ammunitionRegisterEntry.create({ data: { bookId: issue.sourceBookId, positionNo: pos.positionNo, registryRef: pos.registryRef, caliberId: issue.caliberId, ammunitionType: issue.ammunitionType, kind: "RETURN", basis: `Zwrot do wydania ${issue.registryRef}`, quantityIn: deltaReturn, balanceAfter: current + deltaReturn, issueId: issue.id, effectiveAt: confirmedAt, createdById: actor.id, createdByName: actorName(actor), confirmedById: actor.id, confirmedAt, confirmationMethod: "PIN" } });
-    await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "RETURNED", quantity: deltaReturn, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt } });
-  }
+  if (!issue.allocations.length || issue.allocations.reduce((sum, allocation) => sum + allocation.quantity, 0) !== issue.quantityIssued) throw new DomainError("Wydanie nie ma kompletnej rezerwacji źródłowej.", "INVALID_AMMO_RESERVATION");
   const consumed = issue.quantityIssued - returnedQuantity;
-  await tx.ammoIssue.update({ where: { id: issue.id }, data: { status: "CLOSED", quantityReturned: returnedQuantity, quantityConsumed: consumed, closedAt: confirmedAt, closedById: actor.id, closedByName: actorName(actor), returnConfirmedById: actor.id, returnConfirmedAt: confirmedAt } });
-  await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "CONSUMED", quantity: consumed, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt } });
-  return { issue, consumed };
+  let remainingConsumption = consumed;
+  const consumptionAllocations: { bookId: string; bookSeries: string; bookName: string; quantity: number }[] = [];
+  for (const allocation of issue.allocations) {
+    if (remainingConsumption === 0) break;
+    const quantity = Math.min(allocation.quantity, remainingConsumption);
+    const current = await ammoBalance(tx, allocation.bookId, issue.caliberId);
+    if (current < quantity) throw new DomainError(`Stan ewidencyjny księgi ${allocation.book.series} jest niższy od rozliczanego rozchodu.`, "INSUFFICIENT_LEDGER_BALANCE");
+    const position = await allocatePosition(tx, allocation.bookId, "AMMUNITION");
+    await tx.ammunitionRegisterEntry.create({ data: { bookId: allocation.bookId, positionNo: position.positionNo, registryRef: position.registryRef, caliberId: issue.caliberId, ammunitionType: issue.ammunitionType, kind: "CONSUMPTION", basis: `Rozchód z rozliczenia wydania ${issue.registryRef}`, quantityOut: quantity, balanceAfter: current - quantity, issueId: issue.id, effectiveAt: confirmedAt, createdById: actor.id, createdByName: actorName(actor), confirmedById: actor.id, confirmedAt, confirmationMethod: "PIN" } });
+    consumptionAllocations.push({ bookId: allocation.bookId, bookSeries: allocation.book.series, bookName: allocation.book.name, quantity });
+    remainingConsumption -= quantity;
+  }
+  if (returnedQuantity > 0) await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "RETURNED", quantity: returnedQuantity, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt } });
+  const closedIssue = await tx.ammoIssue.update({ where: { id: issue.id }, data: { status: "CLOSED", quantityReturned: returnedQuantity, quantityConsumed: consumed, closedAt: confirmedAt, closedById: actor.id, closedByName: actorName(actor), returnConfirmedById: actor.id, returnConfirmedAt: confirmedAt } });
+  await tx.ammoIssueEvent.create({ data: { issueId: issue.id, type: "CONSUMED", quantity: consumed, effectiveAt: confirmedAt, performedById: actor.id, performedByName: actorName(actor), confirmedById: actor.id, confirmedAt, details: json({ allocations: consumptionAllocations }) } });
+  return { issue: closedIssue, returned: returnedQuantity, consumed, consumptionAllocations };
 }
 
 export async function issueAmmunition(input: IssueAmmoInput, actor: Actor) {
@@ -150,8 +174,36 @@ export async function issueAmmunition(input: IssueAmmoInput, actor: Actor) {
   return prisma.$transaction(async (tx) => {
     const issueInput = { bookId: input.bookId, sourceBookId: input.sourceBookId, caliberId: input.caliberId, ammunitionType: input.ammunitionType, quantity: input.quantity, recipientName: input.recipientName, recipientReference: input.recipientReference, parentIssueId: input.parentIssueId };
     const issue = await createAmmoIssueTx(tx, issueInput, actor, confirmation.confirmedAt);
-    await appendAudit(tx, { userId: actor.id, userSnapshot: actorName(actor), operation: "AMMO_ISSUED", entityType: "AmmoIssue", entityId: issue.id, sessionId: actor.sessionId, payload: json({ registryRef: issue.registryRef, caliberId: issue.caliberId, quantity: issue.quantityIssued, recipientName: issue.recipientName, parentIssueId: issue.parentIssueId }) });
+    await appendAudit(tx, { userId: actor.id, userSnapshot: actorName(actor), operation: "AMMO_ISSUED", entityType: "AmmoIssue", entityId: issue.id, sessionId: actor.sessionId, payload: json({ registryRef: issue.registryRef, caliberId: issue.caliberId, quantity: issue.quantityIssued, recipientName: issue.recipientName, parentIssueId: issue.parentIssueId, allocations: issue.allocations }) });
     return issue;
+  });
+}
+
+export async function topUpAmmunition(input: TopUpAmmoInput, actor: Actor) {
+  await prepareDatabase();
+  const confirmation = await confirmPin(actor.id, input.pin);
+  return prisma.$transaction(async (tx) => {
+    const parent = await tx.ammoIssue.findUnique({ where: { id: input.issueId } });
+    if (!parent || parent.status !== "ACTIVE") throw new DomainError("Wydanie amunicji nie jest aktywne.", "ISSUE_NOT_ACTIVE");
+    const issue = await createAmmoIssueTx(tx, {
+      bookId: parent.bookId,
+      caliberId: parent.caliberId,
+      ammunitionType: parent.ammunitionType,
+      quantity: input.quantity,
+      recipientName: parent.recipientName,
+      recipientReference: parent.recipientReference ?? undefined,
+      parentIssueId: parent.id,
+    }, actor, confirmation.confirmedAt, parent.weaponIssueId ?? undefined);
+    await appendAudit(tx, {
+      userId: actor.id,
+      userSnapshot: actorName(actor),
+      operation: "AMMO_ISSUED",
+      entityType: "AmmoIssue",
+      entityId: issue.id,
+      sessionId: actor.sessionId,
+      payload: json({ action: "TOP_UP", previousIssueId: parent.id, previousRegistryRef: parent.registryRef, previousQuantityConsumed: parent.quantityIssued, registryRef: issue.registryRef, caliberId: issue.caliberId, quantity: issue.quantityIssued, recipientName: issue.recipientName, weaponIssueId: issue.weaponIssueId, allocations: issue.allocations }),
+    });
+    return { previousRegistryRef: parent.registryRef, previousQuantityConsumed: parent.quantityIssued, issue };
   });
 }
 
@@ -160,7 +212,7 @@ export async function returnAmmunition(input: ReturnAmmoInput, actor: Actor) {
   const confirmation = await confirmPin(actor.id, input.pin);
   return prisma.$transaction(async (tx) => {
     const result = await closeAmmoIssueTx(tx, input.issueId, input.returnedQuantity, actor, confirmation.confirmedAt);
-    await appendAudit(tx, { userId: actor.id, userSnapshot: actorName(actor), operation: "AMMO_RETURNED", entityType: "AmmoIssue", entityId: input.issueId, sessionId: actor.sessionId, payload: json({ returnedQuantity: input.returnedQuantity, consumedQuantity: result.consumed }) });
+    await appendAudit(tx, { userId: actor.id, userSnapshot: actorName(actor), operation: "AMMO_RETURNED", entityType: "AmmoIssue", entityId: input.issueId, sessionId: actor.sessionId, payload: json({ returnedQuantity: input.returnedQuantity, consumedQuantity: result.consumed, consumptionAllocations: result.consumptionAllocations }) });
     return result;
   });
 }

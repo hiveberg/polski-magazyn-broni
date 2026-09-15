@@ -159,7 +159,7 @@ model Session {
 model RegisterBook {
   id                String                    @id @default(cuid())
   type              BookType
-  series            String                    @unique
+  series            String
   name              String
   status            BookStatus                @default(ACTIVE)
   nextPosition      Int                       @default(1)
@@ -171,24 +171,27 @@ model RegisterBook {
   weaponIssues      WeaponIssue[]
   ammoIssues        AmmoIssue[]               @relation("AmmoIssueBook")
   sourcedAmmoIssues AmmoIssue[]               @relation("AmmoSourceBook")
+  ammoAllocations   AmmoIssueAllocation[]
 
+  @@unique([type, series], map: "uq_books_type_series")
   @@index([type, status], map: "idx_books_type_status")
 }
 
 model Caliber {
-  id            String                    @id @default(cuid())
-  canonicalName String                    @unique
-  active        Boolean                   @default(true)
-  source        String?
-  sourceId      String?
-  cartridgeType String?
-  metadata      Json?
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
-  aliases       CaliberAlias[]
-  weapons       Weapon[]
-  ammoEntries   AmmunitionRegisterEntry[]
-  ammoIssues    AmmoIssue[]
+  id              String                    @id @default(cuid())
+  canonicalName   String                    @unique
+  active          Boolean                   @default(true)
+  source          String?
+  sourceId        String?
+  cartridgeType   String?
+  metadata        Json?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  aliases         CaliberAlias[]
+  weapons         Weapon[]
+  ammoEntries     AmmunitionRegisterEntry[]
+  ammoIssues      AmmoIssue[]
+  ammoAllocations AmmoIssueAllocation[]
 
   @@index([active, canonicalName], map: "idx_calibers_active_name")
 }
@@ -244,6 +247,7 @@ model Weapon {
   positionNo            Int
   registryRef           String                     @unique
   name                  String
+  displayName           String?
   brand                 String
   caliberId             String
   productionYear        Int?
@@ -269,11 +273,27 @@ model Weapon {
   events                WeaponEvent[]
   issues                WeaponIssue[]
   verificationFlags     PhysicalVerificationFlag[]
+  images                WeaponImage[]
 
   @@unique([bookId, positionNo], map: "uq_weapon_book_position")
   @@index([serialNumber], map: "idx_weapons_serial")
   @@index([caliberId, status], map: "idx_weapons_caliber_status")
   @@index([status, type], map: "idx_weapons_status_type")
+}
+
+model WeaponImage {
+  id           String   @id @default(cuid())
+  weaponId     String
+  storageName  String   @unique
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  sha256       String
+  uploadedById String
+  createdAt    DateTime @default(now())
+  weapon       Weapon   @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+
+  @@index([weaponId, createdAt], map: "idx_weapon_images_weapon_date")
 }
 
 model WeaponRegisterEntry {
@@ -429,11 +449,30 @@ model AmmoIssue {
   parentIssue         AmmoIssue?                @relation("AmmoIssueChain", fields: [parentIssueId], references: [id], onDelete: Restrict)
   childIssues         AmmoIssue[]               @relation("AmmoIssueChain")
   ledgerEntries       AmmunitionRegisterEntry[]
+  allocations         AmmoIssueAllocation[]
   events              AmmoIssueEvent[]
 
   @@unique([bookId, positionNo], map: "uq_ammo_issue_book_position")
   @@index([status, issuedAt], map: "idx_ammo_issues_status_date")
   @@index([caliberId, status], map: "idx_ammo_issues_caliber_status")
+}
+
+model AmmoIssueAllocation {
+  id        String       @id @default(cuid())
+  issueId   String
+  bookId    String
+  caliberId String
+  sequence  Int
+  quantity  Int
+  createdAt DateTime     @default(now())
+  issue     AmmoIssue    @relation(fields: [issueId], references: [id], onDelete: Restrict)
+  book      RegisterBook @relation(fields: [bookId], references: [id], onDelete: Restrict)
+  caliber   Caliber      @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+
+  @@unique([issueId, sequence], map: "uq_ammo_issue_allocation_sequence")
+  @@unique([issueId, bookId], map: "uq_ammo_issue_allocation_book")
+  @@index([bookId, caliberId], map: "idx_ammo_allocations_book_caliber")
+  @@index([caliberId, issueId], map: "idx_ammo_allocations_caliber_issue")
 }
 
 model AmmoIssueEvent {

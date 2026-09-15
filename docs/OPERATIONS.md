@@ -13,8 +13,11 @@
 
 - Dokument wprowadź przed nabyciem lub wycofaniem.
 - Nowa broń i amunicja zawsze trafiają do wybranej aktywnej księgi.
-- Wydanie broni wybiera konkretny egzemplarz; amunicję można dołączyć albo jawnie pominąć.
-- Zwrot zamyka aktywne wydanie. Dla amunicji system oblicza rozchód jako różnicę wydania i zwrotu.
+- Wydanie broni wybiera konkretny egzemplarz; amunicję można dołączyć albo jawnie pominąć. Przy wydaniu amunicji pozostaw puste źródło, aby system dobrał jedną lub kilka ksiąg, albo wskaż księgę, jeśli blokada ma być ograniczona wyłącznie do niej.
+- Wydanie amunicji tworzy blokadę, ale nie pomniejsza stanu ewidencyjnego. Stan dostępny jest stanem ewidencyjnym pomniejszonym o wszystkie aktywne blokady.
+- Rozliczenie zamyka aktywne wydanie. System zapisuje rozchód jako różnicę wydania i zwrotu; zwracane sztuki tylko zwalniają blokadę.
+- Akcja „Rozlicz bez zwrotu” zapisuje zwrot równy zero i wymaga PIN-u tak samo jak zwykłe rozliczenie.
+- Zakładka „Dokładka” pokazuje aktywne wydania. Dokładka rozlicza wybraną pozycję ze zwrotem równym zero i tworzy nowe wydanie na podaną ilość, zachowując księgę wydań, odbiorcę, dokument, kaliber, typ amunicji oraz powiązanie z bronią. Źródła są dobierane ponownie według dostępnego stanu.
 - Błędu formalnego nie poprawiaj w bazie; użyj korekty i podaj przyczynę.
 - Przed kontrolą uruchom weryfikację audytu i raport kontroli.
 
@@ -24,7 +27,7 @@
 - Co najmniej okresowo kopiuj ZIP-y poza host i wykonuj próbny restore.
 - Aktualizuj system operacyjny, Node.js i zależności po przetestowaniu na kopii.
 - Nie wystawiaj portu Next.js bezpośrednio do Internetu. Użyj reverse proxy, TLS, limitów żądań i reguł sieciowych.
-- Dostęp do katalogu `data` nadaj tylko kontu uruchamiającemu PMB i administratorom systemowym.
+- Dostęp do katalogu `data` nadaj tylko kontu uruchamiającemu PMBP i administratorom systemowym.
 
 ## Migracje
 

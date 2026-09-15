@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const root = resolve(process.cwd());
 
 export function resolveDatabasePath(databaseUrl = process.env.DATABASE_URL ?? "file:../data/database.sqlite") {
-  if (!databaseUrl.startsWith("file:")) throw new Error("Polski Magazyn Broni obsługuje lokalny URL SQLite zaczynający się od file:.");
+  if (!databaseUrl.startsWith("file:")) throw new Error("PMBP — Polski Magazyn Broni Palnej obsługuje lokalny URL SQLite zaczynający się od file:.");
   const rawPath = decodeURIComponent(databaseUrl.slice(5));
   return isAbsolute(rawPath) ? rawPath : resolve(root, "prisma", rawPath);
 }

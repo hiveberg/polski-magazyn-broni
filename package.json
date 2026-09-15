@@ -1,9 +1,9 @@
 {
-  "name": "polski-magazyn-broni",
+  "name": "pmbp-polski-magazyn-broni-palnej",
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "description": "Lokalny system ewidencji broni i amunicji dla polskich klubów i strzelnic.",
+  "description": "PMBP — lokalny system ewidencji broni palnej i amunicji dla polskich klubów i strzelnic.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=20.9.0"

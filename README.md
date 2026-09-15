@@ -1,18 +1,21 @@
-# Polski Magazyn Broni
+# PMBP — Polski Magazyn Broni Palnej
 
-Polski Magazyn Broni (PMB) to otwartoźródłowa, lokalna aplikacja do prowadzenia ewidencji broni i amunicji, obsługi wydań i zwrotów, dokumentów, kontroli, audytu oraz wydruków. Interfejs i model danych zachowują pojęcia znane z papierowych ksiąg: księga, pozycja, identyfikator `A12`, przychód, wydanie, przyjęcie i rozchód.
+PMBP — Polski Magazyn Broni Palnej to otwartoźródłowa, lokalna aplikacja do prowadzenia ewidencji broni palnej i amunicji, obsługi wydań i zwrotów, dokumentów, kontroli, audytu oraz wydruków. Interfejs i model danych zachowują pojęcia znane z papierowych ksiąg: księga, pozycja, identyfikator `A12`, przychód, wydanie, przyjęcie i rozchód.
+
+Strona projektu: [pmbp.pl](https://pmbp.pl)
 
 Projekt jest przeznaczony do self-hostingu na pojedynczym, zaufanym serwerze organizacji. Nie wymaga usług chmurowych.
 
 ## Najważniejsze funkcje
 
 - ewidencja każdego egzemplarza broni i ledger amunicji;
-- oddzielne książki serii `A`–`ZZ` z niezmiennymi numerami pozycji;
+- oddzielne książki serii `A`–`ZZ` z niezmiennymi numerami pozycji; ta sama seria może występować w różnych typach ksiąg;
 - wydanie i zwrot broni, także z powiązaną amunicją, wykonywane atomowo;
-- samodzielne wydania, zwroty, rozchody i łańcuchy kolejnych wydań amunicji;
-- dokumenty źródłowe i bezpieczne załączniki lokalne;
+- samodzielne wydania, zwroty, rozchody i łańcuchy kolejnych wydań amunicji, z automatycznym doborem jednej lub wielu ksiąg źródłowych;
+- dokumenty źródłowe z wieloma bezpiecznymi załącznikami lokalnymi, podglądem i kontrolowaną edycją;
 - role administratora i osoby upoważnionej, sesje oraz 4-cyfrowy PIN operacyjny;
-- historia egzemplarza, korekty bez kasowania źródła i audyt z łańcuchem SHA-256;
+- karta egzemplarza z edytowalną nazwą użytkową, zdjęciami i stronicowaną historią wydań;
+- korekty bez kasowania źródła i audyt z łańcuchem SHA-256;
 - codzienne oraz ręczne backupy, manifest, sumy kontrolne i bezpieczny restore;
 - papieropodobne rejestry, raport kontroli i wydruki;
 - startowy słownik 108 współczesnych kalibrów z 320 aliasami źródłowymi (235 unikalnych po normalizacji).
@@ -68,7 +71,8 @@ Login demonstracyjny: `jan.kowalski`, hasło: `Magazyn123!`, PIN: `1234`. Seed t
 ## Dane i aktualizacje
 
 - baza SQLite: `data/database.sqlite`;
-- załączniki: `data/uploads`;
+- załączniki dokumentów: `data/uploads/documents`;
+- zdjęcia broni: `data/uploads/weapons`;
 - backupy: `data/backups`;
 - słownik startowy: `data/calibers.modern.json`;
 - migracje: `prisma/migrations`.
@@ -98,7 +102,7 @@ npm run test:e2e
 - [Eksploatacja](docs/OPERATIONS.md)
 - [Testy](docs/TESTING.md)
 
-PMB jest narzędziem ewidencyjnym, a nie opinią prawną ani gwarancją zgodności. Administrator organizacji powinien zweryfikować konfigurację, procedury, wydruki i aktualny stan prawa przed użyciem produkcyjnym.
+PMBP jest narzędziem ewidencyjnym, a nie opinią prawną ani gwarancją zgodności. Administrator organizacji powinien zweryfikować konfigurację, procedury, wydruki i aktualny stan prawa przed użyciem produkcyjnym.
 
 ## Licencja
 

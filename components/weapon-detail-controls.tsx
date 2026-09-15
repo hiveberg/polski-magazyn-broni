@@ -1,0 +1,18 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useState, type FormEvent } from "react";
+import { ImagePlus, Save, Trash2 } from "lucide-react";
+import { AttachmentUploader } from "@/components/attachment-uploader";
+import { InlineAlert } from "@/components/ui-system";
+
+type ImageItem = { id: string; originalName: string; sizeBytes: number };
+async function json(response: Response) { const body = await response.json(); if (!response.ok) throw new Error(body.error ?? "Operacja nie powiodła się."); return body; }
+
+export function WeaponMetadataControls({ weaponId, displayName, images }: { weaponId: string; displayName: string | null; images: ImageItem[] }) {
+  const [message, setMessage] = useState(""); const [error, setError] = useState(""); const [loading, setLoading] = useState(false); const router = useRouter();
+  async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); const data = new FormData(event.currentTarget); setLoading(true); setError(""); try { await json(await fetch(`/api/weapons/${weaponId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ displayName: data.get("displayName") || null }) })); const files = data.getAll("files").filter((item): item is File => item instanceof File && item.size > 0); for (const file of files) { const upload = new FormData(); upload.set("weaponId", weaponId); upload.set("file", file); await json(await fetch("/api/weapon-images", { method: "POST", body: upload })); } setMessage("Metadane karty broni zostały zaktualizowane."); router.refresh(); } catch (reason) { setError(reason instanceof Error ? reason.message : "Nie udało się zapisać metadanych."); } finally { setLoading(false); } }
+  async function remove(id: string) { setError(""); try { await json(await fetch(`/api/weapon-images?id=${id}`, { method: "DELETE" })); setMessage("Zdjęcie zostało usunięte."); router.refresh(); } catch (reason) { setError(reason instanceof Error ? reason.message : "Nie udało się usunąć zdjęcia."); } }
+  return <div className="form-stack">{error && <InlineAlert tone="error">{error}</InlineAlert>}{message && <InlineAlert tone="success">{message}</InlineAlert>}<form className="form-stack" onSubmit={submit}><div className="field"><label htmlFor="displayName">Nazwa użytkowa</label><input className="input" id="displayName" name="displayName" defaultValue={displayName ?? ""} placeholder="Np. Glock klubowy nr 1" /><small className="muted">To edytowalna metadana — nie zmienia historycznego wpisu ewidencyjnego.</small></div><AttachmentUploader imagesOnly /><button className="button primary" disabled={loading}><Save aria-hidden />{loading ? "Zapisywanie…" : "Zapisz metadane i zdjęcia"}</button></form><div><h3 className="section-heading"><ImagePlus aria-hidden />Zdjęcia ({images.length})</h3>{images.length ? <div className="image-management-grid">{images.map((image) => <div key={image.id}><a href={`/api/weapon-images?id=${image.id}`} target="_blank" rel="noreferrer"><span className="managed-image"><Image src={`/api/weapon-images?id=${image.id}`} alt={image.originalName} fill sizes="240px" unoptimized /></span><span>{image.originalName}</span></a><button className="close-button danger-icon" aria-label={`Usuń zdjęcie ${image.originalName}`} onClick={() => void remove(image.id)}><Trash2 /></button></div>)}</div> : <p className="muted">Brak własnych zdjęć. System używa neutralnej zaślepki odpowiedniej dla typu broni.</p>}</div></div>;
+}

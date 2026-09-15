@@ -1,32 +1,23 @@
 import { randomUUID } from "node:crypto";
-import { extname } from "node:path";
-import { readFile, rm, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { prisma } from "@/lib/db";
 import { appendAudit, sha256 } from "@/lib/domain/audit";
 import { requireApiUser } from "@/lib/auth/session";
 import { assertSameOrigin } from "@/lib/auth/security";
 import { ensureDataDirectories, safeChild, uploadsPath } from "@/lib/paths";
 import { errorResponse, DomainError } from "@/lib/errors";
-
-const allowed = new Map([["application/pdf", ".pdf"], ["image/jpeg", ".jpg"], ["image/png", ".png"], ["image/webp", ".webp"]]);
-
-function validSignature(mimeType: string, buffer: Buffer) {
-  if (mimeType === "application/pdf") return buffer.subarray(0, 5).toString("ascii") === "%PDF-";
-  if (mimeType === "image/jpeg") return buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
-  if (mimeType === "image/png") return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
-  if (mimeType === "image/webp") return buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP";
-  return false;
-}
+import { validateUpload } from "@/lib/upload";
 
 export async function POST(request: Request) {
   try {
     await assertSameOrigin(request); const actor = await requireApiUser(); const form = await request.formData(); const file = form.get("file"); const documentId = String(form.get("documentId") ?? "");
     if (!(file instanceof File) || !documentId) throw new DomainError("Wybierz plik i dokument.", "INVALID_UPLOAD");
-    if (!allowed.has(file.type) || file.size > 8 * 1024 * 1024) throw new DomainError("Dozwolone są PDF, JPG, PNG i WebP do 8 MB.", "UNSUPPORTED_UPLOAD");
     if (!await prisma.document.findUnique({ where: { id: documentId } })) throw new DomainError("Dokument nie istnieje.", "INVALID_DOCUMENT");
-    await ensureDataDirectories(); const storageName = `${randomUUID()}${allowed.get(file.type) ?? extname(file.name)}`; const buffer = Buffer.from(await file.arrayBuffer());
-    if (!validSignature(file.type, buffer)) throw new DomainError("Zawartość pliku nie odpowiada deklarowanemu formatowi.", "INVALID_FILE_SIGNATURE");
+    const { buffer, extension } = await validateUpload(file);
+    await ensureDataDirectories(); const storageName = `documents/${randomUUID()}${extension}`;
     const target = safeChild(uploadsPath, storageName);
+    await mkdir(dirname(target), { recursive: true });
     await writeFile(target, buffer, { flag: "wx", mode: 0o600 });
     let attachment;
     try {
@@ -42,4 +33,18 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   try { await requireApiUser(); const id = new URL(request.url).searchParams.get("id") ?? ""; const attachment = await prisma.attachment.findUnique({ where: { id } }); if (!attachment) throw new DomainError("Nie znaleziono załącznika.", "ATTACHMENT_NOT_FOUND", 404); return new Response(await readFile(safeChild(uploadsPath, attachment.storageName)), { headers: { "Content-Type": attachment.mimeType, "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(attachment.originalName)}`, "Cache-Control": "private, no-store" } }); }
   catch (error) { return errorResponse(error); }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    await assertSameOrigin(request); const actor = await requireApiUser(); const id = new URL(request.url).searchParams.get("id") ?? "";
+    const attachment = await prisma.attachment.findUnique({ where: { id } });
+    if (!attachment) throw new DomainError("Nie znaleziono załącznika.", "ATTACHMENT_NOT_FOUND", 404);
+    await prisma.$transaction(async (tx) => {
+      await tx.attachment.delete({ where: { id } });
+      await appendAudit(tx, { userId: actor.id, userSnapshot: `${actor.firstName} ${actor.lastName}`, operation: "ATTACHMENT_DELETED", entityType: "Attachment", entityId: id, sessionId: actor.sessionId, payload: { documentId: attachment.documentId, originalName: attachment.originalName, sha256: attachment.sha256 } });
+    });
+    await rm(safeChild(uploadsPath, attachment.storageName), { force: true });
+    return Response.json({ ok: true });
+  } catch (error) { return errorResponse(error); }
 }

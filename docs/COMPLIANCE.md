@@ -1,10 +1,10 @@
 # Mapowanie wymagań prawnych
 
-PMB został zaprojektowany tak, aby wspierać realizację obowiązków ewidencyjnych, ale nie jest certyfikatem zgodności ani poradą prawną. Mapowanie opiera się na aktualnym tekście jednolitym rozporządzenia Ministra Spraw Wewnętrznych i Administracji w sprawie przechowywania, noszenia oraz ewidencjonowania broni i amunicji, ogłoszonym w Dz.U. 2023 poz. 364. Operator powinien przed wdrożeniem sprawdzić [urzędowy tekst w ELI](https://eli.gov.pl/api/acts/DU/2023/364/text.html) i późniejsze zmiany.
+PMBP został zaprojektowany tak, aby wspierać realizację obowiązków ewidencyjnych, ale nie jest certyfikatem zgodności ani poradą prawną. Mapowanie opiera się na aktualnym tekście jednolitym rozporządzenia Ministra Spraw Wewnętrznych i Administracji w sprawie przechowywania, noszenia oraz ewidencjonowania broni i amunicji, ogłoszonym w Dz.U. 2023 poz. 364. Operator powinien przed wdrożeniem sprawdzić [urzędowy tekst w ELI](https://eli.gov.pl/api/acts/DU/2023/364/text.html) i późniejsze zmiany.
 
 ## § 9 — ewidencja posiadanej broni i amunicji
 
-| Obowiązek / pole | Realizacja w PMB |
+| Obowiązek / pole | Realizacja w PMBP |
 | --- | --- |
 | rodzaj, marka, kaliber, seria/numer i rok produkcji broni | `Weapon` oraz niezmienny snapshot `WeaponRegisterEntry` |
 | data nabycia, podstawa nabycia i dane z dokumentu | dokument źródłowy, `acquisitionDate`, `acquisitionBasis` i powiązanie z wpisem |
@@ -14,7 +14,7 @@ PMB został zaprojektowany tak, aby wspierać realizację obowiązków ewidencyj
 
 ## § 10 — książki wydawania i przyjmowania
 
-| Obowiązek / pole | Realizacja w PMB |
+| Obowiązek / pole | Realizacja w PMBP |
 | --- | --- |
 | data i godzina wydania/przyjęcia | timestamp wydania oraz zwrotu w `WeaponIssue` i `AmmoIssue` |
 | dane osoby wydającej, przyjmującej i odbierającej | snapshoty imienia i nazwiska, identyfikator odbiorcy oraz potwierdzenie PIN-em |
@@ -25,7 +25,7 @@ PMB został zaprojektowany tak, aby wspierać realizację obowiązków ewidencyj
 
 ## § 11 — trwałość zapisu elektronicznego
 
-| Wymaganie | Realizacja w PMB |
+| Wymaganie | Realizacja w PMBP |
 | --- | --- |
 | rejestrowanie wszystkich operacji | formalne wpisy, zdarzenia domenowe i globalny audit log |
 | brak kasowania/wymazywania | brak endpointów usuwających; `Restrict` w relacjach; korekty jako nowe zdarzenia |
@@ -36,8 +36,8 @@ PMB został zaprojektowany tak, aby wspierać realizację obowiązków ewidencyj
 
 ## Materiały projektowe
 
-Widoki i wydruki zostały zestawione z formularzami PDF znajdującymi się w katalogu `Polski Magazyn Broni - zasoby projektowe`: ewidencją broni, ewidencją amunicji, książką wydawania broni, książką wydawania amunicji i wykazem posiadanej amunicji.
+Widoki i wydruki zostały zestawione z formularzami PDF znajdującymi się w katalogu zasobów projektowych: ewidencją broni, ewidencją amunicji, książką wydawania broni, książką wydawania amunicji i wykazem posiadanej amunicji.
 
 ## Odpowiedzialność operatora
 
-PMB nie kontroluje fizycznego zabezpieczenia magazynu, systemu operacyjnego, retencji poza aplikacją, poprawności nadanych upoważnień ani tego, czy procedury organizacji odpowiadają aktualnemu prawu. Przed użyciem produkcyjnym należy przeprowadzić przegląd prawny i bezpieczeństwa, zatwierdzić wzory wydruków oraz test odtworzenia kopii.
+PMBP nie kontroluje fizycznego zabezpieczenia magazynu, systemu operacyjnego, retencji poza aplikacją, poprawności nadanych upoważnień ani tego, czy procedury organizacji odpowiadają aktualnemu prawu. Przed użyciem produkcyjnym należy przeprowadzić przegląd prawny i bezpieczeństwa, zatwierdzić wzory wydruków oraz test odtworzenia kopii.

@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/auth/session";
 import { LoginForm } from "@/components/auth-form";
+import { ProductSignature, ProductWordmark } from "@/components/product-branding";
+import { InlineAlert } from "@/components/ui-system";
+import { PRODUCT_NAME } from "@/lib/brand";
 
 export const metadata = { title: "Logowanie" };
 export const dynamic = "force-dynamic";
@@ -8,5 +11,5 @@ export const dynamic = "force-dynamic";
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ onboarding?: string }> }) {
   if (await currentUser()) redirect("/");
   const params = await searchParams;
-  return <main className="auth-page"><section className="auth-card"><header className="auth-banner"><h1>Polski Magazyn Broni</h1><p>Bezpieczna lokalna ewidencja broni i amunicji.</p></header><div className="auth-body">{params.onboarding === "complete" && <div className="success-box" style={{ marginBottom: 16 }}>Administrator został utworzony. Zaloguj się hasłem jednorazowym.</div>}<LoginForm /><p className="auth-branding">Integral Dot sp. z o.o.</p></div></section></main>;
+  return <main className="auth-page"><section className="auth-card"><header className="auth-banner"><div className="auth-brand-lockup"><ProductWordmark className="auth-brand-code" /><div className="auth-brand-title"><h1>{PRODUCT_NAME}</h1><span>Ewidencja. Kontrola. Bezpieczeństwo.</span></div></div><p>Bezpieczna lokalna ewidencja broni palnej i amunicji.</p></header><div className="auth-body">{params.onboarding === "complete" && <InlineAlert tone="success">Administrator został utworzony. Zaloguj się hasłem jednorazowym.</InlineAlert>}<LoginForm /><ProductSignature suffix="Integral Dot sp. z o.o." /></div></section></main>;
 }
