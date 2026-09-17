@@ -48,6 +48,20 @@ npm run build
 npm run start
 ```
 
+### Windows 10
+
+Najprościej uruchomić dwuklikiem `setup-windows.cmd`. Instalator sprawdzi lub doinstaluje Node.js LTS, zachowa istniejący plik `.env` i bazę, zainstaluje zależności, wykona migracje oraz zbuduje aplikację. Po jednorazowym potwierdzeniu UAC utworzy zadanie systemowe „PMBP - Polski Magazyn Broni Palnej”, uruchomi aplikację i będzie ją uruchamiał automatycznie przy każdym starcie Windows — jeszcze przed zalogowaniem użytkownika. Aplikacja będzie dostępna pod adresem [http://localhost:3000](http://localhost:3000).
+
+Z PowerShell można wskazać inny port lub przygotować instalację bez uruchamiania serwera:
+
+```powershell
+.\setup-windows.ps1 -InstallNode -Port 3003
+.\setup-windows.ps1 -InstallNode -Port 3003 -NoStart
+.\setup-windows.ps1 -InstallNode -Port 3003 -NoAutoStart
+```
+
+`-NoStart` przygotowuje i rejestruje aplikację, ale nie uruchamia jej od razu. `-NoAutoStart` całkowicie pomija tworzenie zadania systemowego i pozostawia ręczne uruchamianie przez `start-windows.cmd`. Opcjonalny pierwszy argument tego pliku określa port, np. `start-windows.cmd 3003`. Log procesu uruchamianego automatycznie znajduje się w `data/logs/windows-service.log`. Katalog `data` i istniejąca konfiguracja `.env` nie są usuwane ani nadpisywane.
+
 Przed wystawieniem systemu w sieci organizacji zastosuj TLS i reverse proxy, ogranicz dostęp sieciowo oraz wykonuj zewnętrzną kopię katalogu `data/backups`.
 
 ## Docker
