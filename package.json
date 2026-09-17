@@ -9,12 +9,13 @@
     "node": ">=20.9.0"
   },
   "scripts": {
+    "predev": "prisma generate",
     "dev": "next dev",
     "build": "prisma generate && next build --webpack",
     "start": "next start",
     "setup": "node --import tsx scripts/setup.ts",
-    "db:migrate": "node --import tsx scripts/migrate.ts",
-    "db:migrate:dev": "node --import tsx scripts/migrate.ts",
+    "db:migrate": "prisma generate && node --import tsx scripts/migrate.ts",
+    "db:migrate:dev": "prisma generate && node --import tsx scripts/migrate.ts",
     "db:seed": "node --import tsx prisma/seed.ts",
     "db:seed:dev": "node --import tsx prisma/seed.ts --demo",
     "db:studio": "prisma studio",

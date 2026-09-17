@@ -16,6 +16,7 @@ import { caliberSuggestions, searchCalibers } from "@/lib/caliber-search";
 import { planAmmoAllocation } from "@/lib/ammunition-allocation";
 import { ammoStockKey, getAmmoStockBalances } from "@/lib/ammunition-stock";
 import { uploadsPath } from "@/lib/paths";
+import { defaultDashboardActionColors, parseDashboardActionColors } from "@/lib/settings";
 import caliberPreset from "@/data/calibers.modern.json";
 
 const database = resolve(process.cwd(), "tmp/vitest-database.sqlite");
@@ -101,14 +102,19 @@ describe("reguły domenowe magazynu", () => {
     expect(() => assertAccountAccess({ ...actor, role: "AUTHORIZED", isAuthorized: false })).toThrowError(expect.objectContaining({ code: "NOT_AUTHORIZED" }));
   });
 
+  test("ustawienia kolorów odrzucają nieznane tokeny i zachowują komplet domyślnych akcji", () => {
+    expect(parseDashboardActionColors({ issueWeapon: "red", returnWeapon: "nieznany" })).toEqual({ ...defaultDashboardActionColors, issueWeapon: "red" });
+  });
+
   test("nabycie tworzy broń, wpis źródłowy i kolejną pozycję", async () => {
     const weapon = await addWeapon({
       bookId: books.weapon.id, caliberId, documentId, name: "Pistolet testowy", brand: "PMB",
-      productionYear: 2026, serialNumber: "PMB-0001", type: "HANDGUN", acquisitionBasis: "Faktura TEST/1",
+      productionYear: 2026, serialNumber: "PMB-0001", magazineCount: 2, acquisitionBasis: "Faktura TEST/1",
       acquisitionDate: new Date("2026-09-14T08:00:00Z"), registeredAt: new Date("2026-09-14T09:00:00Z"), pin: "1234",
     }, actor);
     weaponId = weapon.id;
     expect(weapon.registryRef).toBe("A1");
+    expect(weapon).toMatchObject({ type: null, magazineCount: 2 });
     expect(await prisma.weaponRegisterEntry.count({ where: { weaponId } })).toBe(1);
     expect((await prisma.registerBook.findUniqueOrThrow({ where: { id: books.weapon.id } })).nextPosition).toBe(2);
   });
@@ -154,11 +160,12 @@ describe("reguły domenowe magazynu", () => {
 
   test("przychód amunicji buduje saldo księgi", async () => {
     const entry = await acquireAmmunition({
-      bookId: books.ammo.id, caliberId, documentId, ammunitionType: "pełnopłaszczowa", quantity: 100,
+      bookId: books.ammo.id, caliberId, documentId, quantity: 100,
       basis: "Faktura TEST/1", effectiveAt: new Date("2026-09-14T09:05:00Z"), pin: "1234",
     }, actor);
     expect(entry.registryRef).toBe("C1");
     expect(entry.balanceAfter).toBe(100);
+    expect(entry.ammunitionType).toBeNull();
   });
 
   test("nieudane wydanie z nadmierną amunicją cofa całą transakcję", async () => {
@@ -177,6 +184,7 @@ describe("reguły domenowe magazynu", () => {
       magazineCount: 2, pin: "1234", ammo: { issueBookId: books.ammoIssue.id, sourceBookId: books.ammo.id, quantity: 40, ammunitionType: "pełnopłaszczowa" },
     }, actor);
     expect(issued.issue.registryRef).toBe("WB1");
+    expect(issued.issue.magazineCount).toBe(2);
     expect((await prisma.weapon.findUniqueOrThrow({ where: { id: weaponId } })).status).toBe("ISSUED");
     const linkedReservation = await prisma.ammoIssueAllocation.findFirstOrThrow({ where: { issue: { weaponIssueId: issued.issue.id } } });
     expect(linkedReservation.quantity).toBe(40);
@@ -191,7 +199,10 @@ describe("reguły domenowe magazynu", () => {
   });
 
   test("broń po zwrocie można wydać ponownie, a po wycofaniu już nie", async () => {
-    const second = await issueWeapon({ weaponId, bookId: books.weaponIssue.id, recipientName: "Drugi Odbiorca", magazineCount: 1, pin: "1234" }, actor);
+    const recipient = await prisma.recipient.create({ data: { name: "Drugi Odbiorca", reference: "DOK-22", normalizedName: "drugi odbiorca", normalizedReference: "dok22", createdById: actor.id, createdByName: "Anna Testowa" } });
+    await expect(issueWeapon({ weaponId, bookId: books.weaponIssue.id, recipientName: "Drugi Odbiorca", magazineCount: 3, pin: "1234" }, actor)).rejects.toMatchObject({ code: "TOO_MANY_MAGAZINES" });
+    const second = await issueWeapon({ weaponId, bookId: books.weaponIssue.id, recipientId: recipient.id, recipientName: "Nieaktualna nazwa", recipientReference: "BŁĘDNY", magazineCount: 1, pin: "1234" }, actor);
+    expect(second.issue).toMatchObject({ recipientId: recipient.id, recipientName: "Drugi Odbiorca", recipientReference: "DOK-22", magazineCount: 1 });
     await returnWeapon({ issueId: second.issue.id, returnedFromName: "Drugi Odbiorca", pin: "1234" }, actor);
     await withdrawWeapon({ weaponId, documentId, basis: "Protokół wycofania TEST/1", status: "WITHDRAWN", pin: "1234" }, actor);
     expect((await prisma.weapon.findUniqueOrThrow({ where: { id: weaponId } })).status).toBe("WITHDRAWN");
@@ -305,9 +316,14 @@ describe("reguły domenowe magazynu", () => {
 
   test("korekta dopisuje zdarzenie i nie nadpisuje wpisu źródłowego", async () => {
     const original = await prisma.ammunitionRegisterEntry.findFirstOrThrow({ orderBy: { positionNo: "asc" } });
-    await createCorrection({ entityType: "AmmunitionRegisterEntry", entryId: original.id, correctedValues: { basis: "Faktura TEST/1 — poprawiono opis" }, reason: "Oczywista omyłka pisarska", pin: "1234" }, actor);
-    expect((await prisma.ammunitionRegisterEntry.findUniqueOrThrow({ where: { id: original.id } })).basis).toBe(original.basis);
-    expect(await prisma.correctionEvent.count({ where: { correctsAmmoEntryId: original.id } })).toBe(1);
+    await expect(createCorrection({ entryId: original.id, quantityDelta: 0, note: "Nieprawidłowa korekta zerowa", pin: "1234" }, actor)).rejects.toMatchObject({ code: "INVALID_CORRECTION_QUANTITY" });
+    await expect(createCorrection({ entryId: original.id, quantityDelta: 1, note: "Nieprawidłowa korekta dodatnia", pin: "1234" }, actor)).rejects.toMatchObject({ code: "INVALID_CORRECTION_QUANTITY" });
+    await expect(createCorrection({ entryId: original.id, quantityDelta: -1_000_000, note: "Korekta przekracza dostępny stan", pin: "1234" }, actor)).rejects.toMatchObject({ code: "INSUFFICIENT_AVAILABLE_AMMO" });
+    const result = await createCorrection({ entryId: original.id, quantityDelta: -1, note: "Oczywista omyłka ilościowa", pin: "1234" }, actor);
+    expect((await prisma.ammunitionRegisterEntry.findUniqueOrThrow({ where: { id: original.id } })).quantityOut).toBe(original.quantityOut);
+    expect(result.entry).toMatchObject({ kind: "CORRECTION", quantityOut: 1, issueId: null });
+    expect(await prisma.correctionEvent.count({ where: { correctsAmmoEntryId: original.id, resultingAmmoEntryId: result.entry.id } })).toBe(1);
+    expect(await prisma.auditEvent.findFirst({ where: { operation: "REGISTER_ENTRY_CORRECTED", entityId: result.correction.id } })).toBeTruthy();
   });
 
   test("PIN blokuje się po pięciu błędnych próbach", async () => {
@@ -321,7 +337,7 @@ describe("reguły domenowe magazynu", () => {
     try {
       const zip = new AdmZip(result.path);
       const manifest = JSON.parse(zip.readAsText("manifest.json"));
-      expect(manifest).toMatchObject({ format: "pmb-backup", version: 1, schemaVersion: "20260914143000_ammo_reservations", counts: { attachments: 2, weaponImages: 1, ammoAllocations: expect.any(Number) } });
+      expect(manifest).toMatchObject({ format: "pmb-backup", version: 1, schemaVersion: "20260917120000_navigation_recipients_and_corrections", counts: { attachments: 2, weaponImages: 1, ammoAllocations: expect.any(Number), recipients: expect.any(Number), systemSettings: expect.any(Number) } });
       expect(zip.getEntry("database.sqlite")).toBeTruthy();
       expect(zip.getEntry("uploads/documents/doc-one.pdf")).toBeTruthy();
       expect(zip.getEntry("uploads/documents/doc-two.pdf")).toBeTruthy();

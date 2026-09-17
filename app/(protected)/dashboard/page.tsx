@@ -6,13 +6,14 @@ import { requireUser } from "@/lib/auth/session";
 import { formatDateTime } from "@/lib/utils";
 import { OperationLauncher } from "@/components/operation-launcher";
 import { auditOperationLabels, labelFor } from "@/lib/labels";
-import { getAmmoStockBalances, sumAmmoStock } from "@/lib/ammunition-stock";
+import { getAmmoStockBalances } from "@/lib/ammunition-stock";
+import { parseDashboardActionColors } from "@/lib/settings";
 
 export const metadata = { title: "Pulpit" };
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const [weaponTotal, inStorage, issuedCount, activeUsers, recent, activeWeaponIssues, activeAmmoIssues, ammoBalances] = await Promise.all([
+  const [weaponTotal, inStorage, issuedCount, activeUsers, recent, activeWeaponIssues, activeAmmoIssues, activeAmmoIssueCount, ammoBalances, actionColorSetting] = await Promise.all([
     prisma.weapon.count(),
     prisma.weapon.count({ where: { status: "IN_STORAGE" } }),
     prisma.weapon.count({ where: { status: "ISSUED" } }),
@@ -20,17 +21,13 @@ export default async function DashboardPage() {
     prisma.auditEvent.findMany({ orderBy: { sequence: "desc" }, take: 6 }),
     prisma.weaponIssue.findMany({ where: { status: "ACTIVE" }, include: { weapon: { include: { caliber: true } } }, orderBy: { issuedAt: "desc" }, take: 8 }),
     prisma.ammoIssue.findMany({ where: { status: "ACTIVE" }, include: { caliber: true, weaponIssue: { include: { weapon: true } } }, orderBy: { issuedAt: "desc" }, take: 8 }),
+    prisma.ammoIssue.count({ where: { status: "ACTIVE" } }),
     getAmmoStockBalances(prisma),
+    prisma.systemSetting.findUnique({ where: { key: "dashboardActionColors" } }),
   ]);
-
-  const grouped = await prisma.ammunitionRegisterEntry.groupBy({
-    by: ["caliberId"],
-    _sum: { quantityIn: true, quantityOut: true },
-    orderBy: { _sum: { quantityIn: "desc" } },
-    take: 6,
-  });
+  const caliberIds = [...new Set([...ammoBalances.values()].map((row) => row.caliberId))];
   const [calibers, recentWeapons, recentIssues, recentAmmoIssues] = await Promise.all([
-    prisma.caliber.findMany({ where: { id: { in: grouped.map((row) => row.caliberId) } } }),
+    prisma.caliber.findMany({ where: { id: { in: caliberIds } } }),
     prisma.weapon.findMany({ where: { id: { in: recent.filter((event) => event.entityType === "Weapon").map((event) => event.entityId).filter((id): id is string => Boolean(id)) } }, select: { id: true, registryRef: true } }),
     prisma.weaponIssue.findMany({ where: { id: { in: recent.filter((event) => event.entityType === "WeaponIssue").map((event) => event.entityId).filter((id): id is string => Boolean(id)) } }, include: { weapon: { select: { id: true, registryRef: true } } } }),
     prisma.ammoIssue.findMany({ where: { id: { in: recent.filter((event) => event.entityType === "AmmoIssue").map((event) => event.entityId).filter((id): id is string => Boolean(id)) } }, include: { weaponIssue: { include: { weapon: { select: { id: true, registryRef: true } } } } } }),
@@ -41,12 +38,13 @@ export default async function DashboardPage() {
   for (const issue of recentIssues) recentWeaponLinks.set(`WeaponIssue:${issue.id}`, issue.weapon);
   for (const issue of recentAmmoIssues) if (issue.weaponIssue?.weapon) recentWeaponLinks.set(`AmmoIssue:${issue.id}`, issue.weaponIssue.weapon);
 
-  const ammoTotals = sumAmmoStock(ammoBalances.values());
   const stockByCaliber = new Map<string, { ledger: number; reserved: number; available: number }>();
   for (const balance of ammoBalances.values()) {
     const current = stockByCaliber.get(balance.caliberId) ?? { ledger: 0, reserved: 0, available: 0 };
     stockByCaliber.set(balance.caliberId, { ledger: current.ledger + balance.ledger, reserved: current.reserved + balance.reserved, available: current.available + balance.available });
   }
+  const stockRows = [...stockByCaliber.entries()].sort((left, right) => right[1].ledger - left[1].ledger || (caliberMap.get(left[0]) ?? "").localeCompare(caliberMap.get(right[0]) ?? "", "pl")).slice(0, 6);
+  const actionColors = parseDashboardActionColors(actionColorSetting?.value);
   const now = new Date();
   const date = new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", weekday: "long", day: "2-digit", month: "long", year: "numeric" }).format(now);
   const time = new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", hour: "2-digit", minute: "2-digit" }).format(now);
@@ -57,12 +55,12 @@ export default async function DashboardPage() {
         <div><p className="eyebrow">Ewidencja • Kontrola • Bezpieczeństwo</p><h1>Magazyn broni</h1><p className="subtitle">Stan operacyjny obliczony ze wszystkich ksiąg i wpisów.</p></div>
         <div className="clock">{date}<strong>{time}</strong></div>
       </div>
-      <Suspense><OperationLauncher operatorName={`${user.firstName} ${user.lastName}`} /></Suspense>
+      <Suspense><OperationLauncher operatorName={`${user.firstName} ${user.lastName}`} colors={actionColors} /></Suspense>
       <div className="kpis">
         <div className="kpi"><Archive /><div><span>Broń ogółem</span><strong>{weaponTotal}</strong></div></div>
         <div className="kpi"><Warehouse /><div><span>W magazynie</span><strong>{inStorage}</strong></div></div>
         <div className="kpi"><ArrowUpFromLine /><div><span>Wydane sztuki</span><strong>{issuedCount}</strong></div></div>
-        <div className="kpi"><Boxes /><div><span>Amunicja dostępna</span><strong>{ammoTotals.available.toLocaleString("pl-PL")}</strong><small>Ewidencyjnie {ammoTotals.ledger.toLocaleString("pl-PL")} • blokady {ammoTotals.reserved.toLocaleString("pl-PL")}</small></div></div>
+        <div className="kpi"><Boxes /><div><span>Nierozliczonych wydań amunicji</span><strong>{activeAmmoIssueCount.toLocaleString("pl-PL")}</strong></div></div>
         <div className="kpi"><Users /><div><span>Aktywni użytkownicy</span><strong>{activeUsers}</strong></div></div>
       </div>
       <div className="dashboard-grid">
@@ -89,8 +87,8 @@ export default async function DashboardPage() {
         </section>
         <section className="panel">
           <div className="panel-header"><h2 className="panel-title"><Boxes size={19} className="amber" />Stan amunicji</h2><Link className="panel-link" href="/ammunition">Pełny widok</Link></div>
-          <div className="paper-table-wrap"><table className="paper-table"><thead><tr><th>Kaliber</th><th>Ewidencyjny</th><th>Zablokowany</th><th>Dostępny</th><th>Przychód</th><th>Rozchód</th></tr></thead><tbody>
-            {grouped.length ? grouped.map((row) => { const stock = stockByCaliber.get(row.caliberId) ?? { ledger: 0, reserved: 0, available: 0 }; return <tr key={row.caliberId}><td>{caliberMap.get(row.caliberId)}</td><td>{stock.ledger.toLocaleString("pl-PL")}</td><td>{stock.reserved.toLocaleString("pl-PL")}</td><td><strong>{stock.available.toLocaleString("pl-PL")}</strong></td><td>{(row._sum.quantityIn ?? 0).toLocaleString("pl-PL")}</td><td>{(row._sum.quantityOut ?? 0).toLocaleString("pl-PL")}</td></tr>; }) : <tr><td colSpan={6} className="muted">Brak wpisów amunicji.</td></tr>}
+          <div className="paper-table-wrap"><table className="paper-table"><thead><tr><th>Kaliber</th><th>Ewidencyjny</th><th>Zablokowany</th><th>Dostępny</th></tr></thead><tbody>
+            {stockRows.length ? stockRows.map(([caliberId, stock]) => <tr key={caliberId}><td>{caliberMap.get(caliberId)}</td><td>{stock.ledger.toLocaleString("pl-PL")}</td><td>{stock.reserved.toLocaleString("pl-PL")}</td><td><strong>{stock.available.toLocaleString("pl-PL")}</strong></td></tr>) : <tr><td colSpan={4} className="muted">Brak wpisów amunicji.</td></tr>}
           </tbody></table></div>
         </section>
       </div>

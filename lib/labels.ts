@@ -145,6 +145,7 @@ export const auditOperationLabels: Readonly<Record<string, string>> = {
   WEAPON_WITHDRAWN: "Wycofanie broni",
   WEAPON_DEREGISTERED: "Zdjęcie broni z ewidencji",
   REGISTER_ENTRY_CORRECTED: "Korekta wpisu ewidencyjnego",
+  RECIPIENT_CREATED: "Dodanie odbiorcy",
 };
 
 export const auditEntityTypeLabels: Readonly<Record<string, string>> = {
@@ -157,6 +158,7 @@ export const auditEntityTypeLabels: Readonly<Record<string, string>> = {
   PhysicalVerificationFlag: "Kontrola fizyczna",
   WeaponImage: "Zdjęcie broni",
   Weapon: "Broń",
+  Recipient: "Odbiorca",
   BackupRecord: "Kopia zapasowa",
   AmmoIssue: "Wydanie amunicji",
   AmmunitionRegisterEntry: "Wpis ewidencji amunicji",

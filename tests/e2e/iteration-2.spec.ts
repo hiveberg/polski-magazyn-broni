@@ -129,7 +129,7 @@ test("Flow B: grid 10-kolumnowy, statusy, automatyczny krok i PIN przy wydaniu o
   await page.getByRole("button", { name: /A1, .*w magazynie/ }).click();
   await expect(page.getByLabel("Imię i nazwisko / nazwa odbiorcy")).toBeVisible();
   await page.getByLabel("Imię i nazwisko / nazwa odbiorcy").fill("Odbiorca E2E");
-  await page.getByLabel("Liczba magazynków").fill("2");
+  await expect(page.getByLabel("Liczba wydawanych magazynków")).toHaveCount(0);
   await page.getByRole("button", { name: /Dalej/ }).click();
   const skipAmmo = page.getByLabel("Pomiń wydanie amunicji");
   await expect(skipAmmo).toBeVisible();
@@ -173,9 +173,7 @@ test("Flow D: stan amunicji pokazuje wartości ewidencyjne, zablokowane i dostę
   await login(page);
   await page.goto("/ammunition");
   await expect(page.getByRole("tab", { name: "Wg kalibrów" })).toHaveAttribute("aria-selected", "true");
-  await expect(page.getByText("Stan ewidencyjny", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Zablokowane", { exact: true }).first()).toBeVisible();
-  await expect(page.getByText("Dostępne", { exact: true }).first()).toBeVisible();
+  await expect(page.locator(".overview-kpis")).toHaveCount(0);
   await expect(page.locator(".stock-card").first().locator(".stock-values").first()).toContainText("Ewidencyjny");
   await expect(page.locator(".stock-card").first().locator(".stock-values").first()).toContainText("Zablokowany");
   await expect(page.locator(".stock-card").first().locator(".stock-values").first()).toContainText("Dostępny");
@@ -208,7 +206,7 @@ test("wydanie amunicji filtruje kalibry, pilnuje stanu i automatycznie łączy k
   await expect(page.getByText("Brak pasującego kalibru.")).toBeVisible();
   await caliberSearch.fill("9mm luger");
   await page.getByRole("option", { name: /9×19 mm Parabellum.*8[ .]?270 szt/ }).click();
-  await page.getByLabel("Odbiorca").fill("Sekcja wieloźródłowa E2E");
+  await page.getByLabel("Imię i nazwisko / nazwa odbiorcy").fill("Sekcja wieloźródłowa E2E");
   const quantity = page.getByLabel("Ilość");
   const quantityHeight = await quantity.evaluate((element) => element.getBoundingClientRect().height);
   const ammunitionTypeHeight = await page.getByLabel("Typ amunicji").evaluate((element) => element.getBoundingClientRect().height);
@@ -241,7 +239,7 @@ test("wydanie amunicji filtruje kalibry, pilnuje stanu i automatycznie łączy k
   await page.getByLabel("Księga wydań").selectOption({ label: "A — Wydawanie amunicji" });
   await page.getByPlaceholder("Wpisz nazwę lub alias…").fill(".223 Remington");
   await page.getByRole("option", { name: /\.223 Remington/ }).click();
-  await page.getByLabel("Odbiorca").fill("Drugie nierozliczone E2E");
+  await page.getByLabel("Imię i nazwisko / nazwa odbiorcy").fill("Drugie nierozliczone E2E");
   await page.getByLabel("Ilość").fill("1");
   await page.getByRole("button", { name: "Wydaj i potwierdź PIN-em" }).click();
   await page.getByRole("dialog", { name: "Potwierdź operację" }).getByLabel("PIN zalogowanego użytkownika").fill("1234");
@@ -275,7 +273,7 @@ test("wydanie amunicji filtruje kalibry, pilnuje stanu i automatycznie łączy k
   await page.getByLabel("Księga wydań").selectOption({ label: "A — Wydawanie amunicji" });
   await page.getByPlaceholder("Wpisz nazwę lub alias…").fill(".223 Remington");
   await page.getByRole("option", { name: /.223 Remington.*2[ .]?100 szt/ }).click();
-  await page.getByLabel("Odbiorca").fill("Zwrot częściowy E2E");
+  await page.getByLabel("Imię i nazwisko / nazwa odbiorcy").fill("Zwrot częściowy E2E");
   await page.getByLabel("Ilość").fill("10");
   await page.getByRole("button", { name: "Wydaj i potwierdź PIN-em" }).click();
   await page.getByRole("dialog", { name: "Potwierdź operację" }).getByLabel("PIN zalogowanego użytkownika").fill("1234");
@@ -294,8 +292,8 @@ test("wydanie amunicji filtruje kalibry, pilnuje stanu i automatycznie łączy k
   await page.getByLabel("Księga wydań").selectOption({ label: "A — Wydawanie amunicji" });
   await page.getByPlaceholder("Wpisz nazwę lub alias…").fill(".223 Remington");
   await page.getByRole("option", { name: /\.223 Remington/ }).click();
-  await page.getByLabel("Odbiorca").fill("Dokładka E2E");
-  await page.getByLabel("Dokument / identyfikator odbiorcy").fill("DOKLADKA/1");
+  await page.getByLabel("Imię i nazwisko / nazwa odbiorcy").fill("Dokładka E2E");
+  await page.getByLabel("Numer dokumentu lub identyfikator").fill("DOKLADKA/1");
   await page.getByLabel("Ilość").fill("5");
   await page.getByRole("button", { name: "Wydaj i potwierdź PIN-em" }).click();
   await page.getByRole("dialog", { name: "Potwierdź operację" }).getByLabel("PIN zalogowanego użytkownika").fill("1234");
@@ -376,10 +374,98 @@ test("Flow E: ręczny backup jest poprawnym ZIP-em z bazą, załącznikami, zdj�
   expect(names.some((name) => name.startsWith("uploads/documents/"))).toBe(true);
   expect(names.some((name) => name.startsWith("uploads/weapons/"))).toBe(true);
   const manifest = JSON.parse(zip.readAsText("manifest.json"));
-  expect(manifest).toMatchObject({ format: "pmb-backup", version: 1, schemaVersion: "20260914143000_ammo_reservations", counts: { ammoAllocations: expect.any(Number) } });
+  expect(manifest).toMatchObject({ format: "pmb-backup", version: 1, schemaVersion: "20260917120000_navigation_recipients_and_corrections", counts: { ammoAllocations: expect.any(Number), recipients: expect.any(Number), systemSettings: expect.any(Number) } });
   expect(manifest.hashes["database.sqlite"]).toMatch(/^[a-f0-9]{64}$/);
 
   await page.goto("/administration/audit");
   await expect(page.locator("table.paper-table")).toContainText("Utworzenie kopii zapasowej");
   await expect(page.locator("table.paper-table")).toContainText("Kopia zapasowa");
+});
+
+test("korekta amunicji powstaje z wybranej księgi i pozycji, a uwaga trafia do ewidencji", async ({ page }) => {
+  await login(page);
+  await page.goto("/corrections");
+  await expect(page.getByRole("heading", { name: "Korekty" })).toBeVisible();
+  await page.getByLabel("Rejestr amunicji").selectOption({ label: "B — Amunicja karabinowa" });
+  const entry = page.getByLabel("Pozycja ewidencji");
+  const availableEntryId = await entry.locator("option").filter({ hasText: /dostępne [1-9]/ }).first().getAttribute("value");
+  expect(availableEntryId).toBeTruthy();
+  await entry.selectOption(availableEntryId!);
+  await expect(page.getByLabel("Wybrana pozycja")).toBeVisible();
+  await page.getByLabel("Korekta ilości ze znakiem minus").fill("-1");
+  await page.getByLabel("Uwagi do korekty").fill("Korekta kontrolna E2E");
+  await page.getByRole("button", { name: "Zapisz korektę i potwierdź PIN-em" }).click();
+  await page.getByRole("dialog", { name: "Potwierdź korektę amunicji" }).getByLabel("PIN zalogowanego użytkownika").fill("1234");
+  await expect(page.locator(".success-next")).toContainText("Korekta została zapisana");
+  await page.getByRole("link", { name: "Otwórz ewidencję" }).click();
+  await expect(page.locator("table.legal-register thead th").last()).toHaveText("Uwagi");
+  await expect(page.locator("table.legal-register")).toContainText("Korekta kontrolna E2E");
+  await expect(page.locator("table.legal-register")).toContainText("Skorygowano pozycją");
+});
+
+test("audyt widoków: wszystkie strony chronione renderują się bez wyjątków", async ({ page }) => {
+  await login(page, "admin.e2e", "NoweBezpieczneHaslo456");
+
+  const runtimeErrors: string[] = [];
+  page.on("pageerror", (error) => runtimeErrors.push(`pageerror: ${error.message}`));
+  page.on("console", (message) => {
+    if (message.type() === "error") runtimeErrors.push(`console: ${message.text()}`);
+  });
+  page.on("response", (response) => {
+    if (response.url().startsWith("http://127.0.0.1:3107") && response.status() >= 500) {
+      runtimeErrors.push(`HTTP ${response.status()}: ${response.url()}`);
+    }
+  });
+
+  const staticRoutes = [
+    "/dashboard",
+    "/dashboard?action=issue-weapon",
+    "/dashboard?action=return-weapon",
+    "/weapons",
+    "/ammunition",
+    "/registers/weapons",
+    "/registers/ammunition",
+    "/registers/weapon-issues",
+    "/registers/ammo-issues",
+    "/operations/issue-ammunition",
+    "/operations/return-ammunition",
+    "/operations/add-weapon",
+    "/operations/add-ammunition",
+    "/operations/withdraw-weapon",
+    "/documents",
+    "/corrections",
+    "/inspection",
+    "/prints",
+    "/prints/ammunition-summary",
+    "/administration/users",
+    "/administration/books",
+    "/administration/calibers",
+    "/administration/recipients",
+    "/administration/audit",
+    "/administration/backups",
+    "/administration/settings",
+  ];
+
+  for (const route of staticRoutes) {
+    const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+    expect(response?.status(), route).toBeLessThan(500);
+    await expect(page.locator("h1").first(), route).toBeVisible();
+    await expect(page, route).not.toHaveURL(/\/login/);
+  }
+
+  await page.goto("/weapons");
+  const weaponHref = await page.locator('a[href^="/weapons/"]').first().getAttribute("href");
+  expect(weaponHref).toBeTruthy();
+  let response = await page.goto(weaponHref!, { waitUntil: "domcontentloaded" });
+  expect(response?.status(), weaponHref!).toBeLessThan(500);
+  await expect(page.locator("h1").first()).toBeVisible();
+
+  await page.goto("/documents");
+  const documentHref = await page.locator('a[href^="/documents/"]').first().getAttribute("href");
+  expect(documentHref).toBeTruthy();
+  response = await page.goto(documentHref!, { waitUntil: "domcontentloaded" });
+  expect(response?.status(), documentHref!).toBeLessThan(500);
+  await expect(page.locator("h1").first()).toBeVisible();
+
+  expect(runtimeErrors).toEqual([]);
 });

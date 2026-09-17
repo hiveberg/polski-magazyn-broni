@@ -10,7 +10,7 @@ import { DomainError } from "@/lib/errors";
 import type { CurrentUser } from "@/lib/auth/session";
 
 const APP_VERSION = "1.0.0";
-const SCHEMA_VERSION = "20260914143000_ammo_reservations";
+const SCHEMA_VERSION = "20260917120000_navigation_recipients_and_corrections";
 
 async function listFiles(base: string, dir = base): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
@@ -47,9 +47,9 @@ export async function createBackup(type: "AUTO" | "MANUAL" | "PRE_RESTORE", acto
     const uploadFiles = await listFiles(uploadsPath);
     const fileHashes: Record<string, string> = { "database.sqlite": sha256(await readFile(snapshotPath)) };
     for (const file of uploadFiles) fileHashes[`uploads/${file}`] = sha256(await readFile(safeChild(uploadsPath, file)));
-    const [audit, users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages] = await Promise.all([verifyAuditChain(), prisma.user.count(), prisma.weapon.count(), prisma.ammunitionRegisterEntry.count(), prisma.weaponIssue.count(), prisma.ammoIssue.count(), prisma.ammoIssueAllocation.count(), prisma.document.count(), prisma.attachment.count(), prisma.weaponImage.count()]);
+    const [audit, users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages, recipients, systemSettings] = await Promise.all([verifyAuditChain(), prisma.user.count(), prisma.weapon.count(), prisma.ammunitionRegisterEntry.count(), prisma.weaponIssue.count(), prisma.ammoIssue.count(), prisma.ammoIssueAllocation.count(), prisma.document.count(), prisma.attachment.count(), prisma.weaponImage.count(), prisma.recipient.count(), prisma.systemSetting.count()]);
     if (!audit.valid) throw new Error(`Łańcuch audytu jest niespójny od wpisu ${audit.brokenAt}.`);
-    const manifest = { format: "pmb-backup", version: 1, appVersion: APP_VERSION, schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), backupType: type, hashes: fileHashes, counts: { users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages }, auditHeadHash: audit.headHash };
+    const manifest = { format: "pmb-backup", version: 1, appVersion: APP_VERSION, schemaVersion: SCHEMA_VERSION, createdAt: new Date().toISOString(), backupType: type, hashes: fileHashes, counts: { users, weapons, ammoEntries, weaponIssues, ammoIssues, ammoAllocations, documents, attachments, weaponImages, recipients, systemSettings }, auditHeadHash: audit.headHash };
     const zip = new AdmZip();
     zip.addLocalFile(snapshotPath, "", "database.sqlite");
     for (const file of uploadFiles) zip.addLocalFile(safeChild(uploadsPath, file), `uploads/${dirname(file) === "." ? "" : dirname(file)}`);

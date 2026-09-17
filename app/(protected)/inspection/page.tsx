@@ -5,12 +5,11 @@ import { PrintButton } from "@/components/admin-controls";
 import { InlineAlert } from "@/components/ui-system";
 import { formatDateTime } from "@/lib/utils";
 import { auditEntityTypeLabels, auditOperationLabels, labelFor } from "@/lib/labels";
-import { getAmmoStockBalances, sumAmmoStock } from "@/lib/ammunition-stock";
 
 export const metadata = { title: "Raport kontroli" };
 
 export default async function Page() {
-  const [total, storage, issued, inactive, users, operations, activeWeaponIssues, activeAmmoIssues, flags, ammoBalances] = await Promise.all([
+  const [total, storage, issued, inactive, users, operations, activeWeaponIssues, activeAmmoIssues, flags] = await Promise.all([
     prisma.weapon.count(),
     prisma.weapon.count({ where: { status: "IN_STORAGE" } }),
     prisma.weapon.count({ where: { status: "ISSUED" } }),
@@ -20,9 +19,7 @@ export default async function Page() {
     prisma.weaponIssue.count({ where: { status: "ACTIVE" } }),
     prisma.ammoIssue.count({ where: { status: "ACTIVE" } }),
     prisma.physicalVerificationFlag.findMany({ where: { resolvedAt: null }, include: { weapon: true }, orderBy: { createdAt: "desc" } }),
-    getAmmoStockBalances(prisma),
   ]);
-  const ammo = sumAmmoStock(ammoBalances.values());
 
   return (
     <div className="page">
@@ -32,9 +29,6 @@ export default async function Page() {
         <div className="kpi"><div><span>W magazynie</span><strong>{storage}</strong></div></div>
         <div className="kpi"><div><span>Wydana</span><strong>{issued}</strong></div></div>
         <div className="kpi"><div><span>Wycofana / przekazana</span><strong>{inactive}</strong></div></div>
-        <div className="kpi"><div><span>Amunicja ewidencyjna</span><strong>{ammo.ledger.toLocaleString("pl-PL")}</strong></div></div>
-        <div className="kpi"><div><span>Amunicja zablokowana</span><strong>{ammo.reserved.toLocaleString("pl-PL")}</strong></div></div>
-        <div className="kpi"><div><span>Amunicja dostępna</span><strong>{ammo.available.toLocaleString("pl-PL")}</strong></div></div>
       </div>
       <div className="dashboard-grid">
         <section className="page-card">

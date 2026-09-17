@@ -255,7 +255,8 @@ model Weapon {
   serialNumber          String
   otherIdentifyingMarks String?
   accessories           String?
-  type                  WeaponType
+  type                  WeaponType?
+  magazineCount         Int                        @default(0)
   photoAttachmentId     String?
   acquisitionBasis      String
   acquisitionDate       DateTime?
@@ -351,6 +352,7 @@ model WeaponIssue {
   registryRef            String       @unique
   weaponId               String
   status                 IssueStatus  @default(ACTIVE)
+  recipientId            String?
   recipientName          String
   recipientReference     String?
   magazineCount          Int
@@ -375,11 +377,13 @@ model WeaponIssue {
   createdAt              DateTime     @default(now())
   book                   RegisterBook @relation(fields: [bookId], references: [id], onDelete: Restrict)
   weapon                 Weapon       @relation(fields: [weaponId], references: [id], onDelete: Restrict)
+  recipient              Recipient?   @relation(fields: [recipientId], references: [id], onDelete: Restrict)
   ammoIssues             AmmoIssue[]
 
   @@unique([bookId, positionNo], map: "uq_weapon_issue_book_position")
   @@index([weaponId, status], map: "idx_weapon_issues_weapon_status")
   @@index([status, issuedAt], map: "idx_weapon_issues_status_date")
+  @@index([recipientId], map: "idx_weapon_issues_recipient")
 }
 
 model AmmunitionRegisterEntry {
@@ -388,7 +392,7 @@ model AmmunitionRegisterEntry {
   positionNo         Int
   registryRef        String              @unique
   caliberId          String
-  ammunitionType     String
+  ammunitionType     String?
   kind               AmmoLedgerKind
   basis              String
   documentId         String?
@@ -407,7 +411,8 @@ model AmmunitionRegisterEntry {
   caliber            Caliber             @relation(fields: [caliberId], references: [id], onDelete: Restrict)
   document           Document?           @relation(fields: [documentId], references: [id], onDelete: Restrict)
   issue              AmmoIssue?          @relation(fields: [issueId], references: [id], onDelete: Restrict)
-  corrections        CorrectionEvent[]
+  corrections          CorrectionEvent[] @relation("CorrectedAmmoEntry")
+  resultingCorrection  CorrectionEvent?  @relation("ResultingAmmoCorrection")
 
   @@unique([bookId, positionNo], map: "uq_ammo_entry_book_position")
   @@index([bookId, caliberId, effectiveAt], map: "idx_ammo_entries_book_caliber_date")
@@ -423,6 +428,7 @@ model AmmoIssue {
   caliberId           String
   ammunitionType      String
   status              IssueStatus               @default(ACTIVE)
+  recipientId         String?
   recipientName       String
   recipientReference  String?
   quantityIssued      Int
@@ -445,6 +451,7 @@ model AmmoIssue {
   book                RegisterBook              @relation("AmmoIssueBook", fields: [bookId], references: [id], onDelete: Restrict)
   sourceBook          RegisterBook              @relation("AmmoSourceBook", fields: [sourceBookId], references: [id], onDelete: Restrict)
   caliber             Caliber                   @relation(fields: [caliberId], references: [id], onDelete: Restrict)
+  recipient           Recipient?                 @relation(fields: [recipientId], references: [id], onDelete: Restrict)
   weaponIssue         WeaponIssue?              @relation(fields: [weaponIssueId], references: [id], onDelete: Restrict)
   parentIssue         AmmoIssue?                @relation("AmmoIssueChain", fields: [parentIssueId], references: [id], onDelete: Restrict)
   childIssues         AmmoIssue[]               @relation("AmmoIssueChain")
@@ -455,6 +462,24 @@ model AmmoIssue {
   @@unique([bookId, positionNo], map: "uq_ammo_issue_book_position")
   @@index([status, issuedAt], map: "idx_ammo_issues_status_date")
   @@index([caliberId, status], map: "idx_ammo_issues_caliber_status")
+  @@index([recipientId], map: "idx_ammo_issues_recipient")
+}
+
+model Recipient {
+  id                  String        @id @default(cuid())
+  name                String
+  reference           String?
+  normalizedName      String
+  normalizedReference String?
+  createdById         String
+  createdByName       String
+  createdAt           DateTime      @default(now())
+  weaponIssues        WeaponIssue[]
+  ammoIssues          AmmoIssue[]
+
+  @@index([normalizedName], map: "idx_recipients_normalized_name")
+  @@index([normalizedReference], map: "idx_recipients_normalized_reference")
+  @@index([createdAt], map: "idx_recipients_created_at")
 }
 
 model AmmoIssueAllocation {
@@ -498,6 +523,7 @@ model CorrectionEvent {
   entityId              String
   correctsWeaponEntryId String?
   correctsAmmoEntryId   String?
+  resultingAmmoEntryId  String?                  @unique
   previousSnapshot      Json
   correctedValues       Json
   reason                String
@@ -508,7 +534,8 @@ model CorrectionEvent {
   confirmationMethod    ConfirmationMethod       @default(PIN)
   createdAt             DateTime                 @default(now())
   correctsWeaponEntry   WeaponRegisterEntry?     @relation(fields: [correctsWeaponEntryId], references: [id], onDelete: Restrict)
-  correctsAmmoEntry     AmmunitionRegisterEntry? @relation(fields: [correctsAmmoEntryId], references: [id], onDelete: Restrict)
+  correctsAmmoEntry     AmmunitionRegisterEntry? @relation("CorrectedAmmoEntry", fields: [correctsAmmoEntryId], references: [id], onDelete: Restrict)
+  resultingAmmoEntry    AmmunitionRegisterEntry? @relation("ResultingAmmoCorrection", fields: [resultingAmmoEntryId], references: [id], onDelete: Restrict)
 
   @@index([entityType, entityId], map: "idx_corrections_entity")
 }

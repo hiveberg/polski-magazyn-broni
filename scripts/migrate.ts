@@ -45,8 +45,10 @@ export function runMigrations(databasePath = resolveDatabasePath()) {
   }
   db.pragma("optimize");
   const integrity = db.pragma("integrity_check", { simple: true });
+  const foreignKeys = db.pragma("foreign_key_check") as unknown[];
   db.close();
   if (integrity !== "ok") throw new Error(`Kontrola integralności SQLite nie powiodła się: ${integrity}`);
+  if (foreignKeys.length) throw new Error(`Kontrola kluczy obcych SQLite wykryła ${foreignKeys.length} nieprawidłowych odwołań.`);
   return migrations.length;
 }
 
