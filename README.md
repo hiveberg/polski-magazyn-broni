@@ -22,7 +22,7 @@ Projekt jest przeznaczony do self-hostingu na pojedynczym, zaufanym serwerze org
 
 ## Wymagania
 
-- Node.js 20.9 lub nowszy (zalecany Node.js 22 LTS);
+- Node.js 22 lub nowszy (zalecana aktualna wersja LTS);
 - npm 10 lub nowszy;
 - system Windows, macOS albo Linux z lokalnym, trwałym dyskiem;
 - alternatywnie Docker z Docker Compose.

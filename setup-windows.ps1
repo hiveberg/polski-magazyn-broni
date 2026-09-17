@@ -58,7 +58,7 @@ function Restart-AsAdministrator {
 function Install-NodeLts {
     $winget = Get-Command "winget.exe" -ErrorAction SilentlyContinue
     if (-not $winget) {
-        throw "Nie znaleziono Node.js ani winget. Zainstaluj Node.js 22 LTS x64 z https://nodejs.org/ i uruchom skrypt ponownie."
+        throw "Nie znaleziono Node.js ani winget. Zainstaluj aktualny Node.js LTS x64 z https://nodejs.org/ i uruchom skrypt ponownie."
     }
 
     Write-Step "Instalowanie Node.js LTS przez winget"
@@ -81,7 +81,7 @@ function Find-NodeAndNpm {
         }
     }
     if ((-not $node) -or (-not $npm)) {
-        throw "Wymagany jest Node.js 20.9 lub nowszy (zalecany Node.js 22 LTS). Uruchom setup-windows.cmd albo wywolaj ten skrypt z parametrem -InstallNode."
+        throw "Wymagany jest Node.js 22 lub nowszy (zalecana jest aktualna wersja LTS). Uruchom setup-windows.cmd albo wywolaj ten skrypt z parametrem -InstallNode."
     }
     return @($node.Source, $npm.Source)
 }
@@ -97,6 +97,48 @@ function Invoke-Checked {
     if ($LASTEXITCODE -ne 0) {
         throw "$Label nie powiodlo sie (kod $LASTEXITCODE)."
     }
+}
+
+function Stop-PmbpNodeProcesses {
+    param([string]$ProjectRoot)
+
+    try {
+        $processes = Get-CimInstance Win32_Process -Filter "Name = 'node.exe'" -ErrorAction Stop
+        foreach ($process in $processes) {
+            if ($process.CommandLine -and ($process.CommandLine.IndexOf($ProjectRoot, [StringComparison]::OrdinalIgnoreCase) -ge 0)) {
+                Write-Host "Zatrzymywanie procesu PMBP (PID $($process.ProcessId))." -ForegroundColor Yellow
+                Stop-Process -Id $process.ProcessId -Force -ErrorAction Stop
+            }
+        }
+    } catch {
+        Write-Host "Nie udalo sie sprawdzic wszystkich procesow PMBP: $($_.Exception.Message)" -ForegroundColor DarkYellow
+    }
+}
+
+function Remove-GeneratedDependencies {
+    param([string]$ProjectRoot)
+
+    $dependenciesPath = [IO.Path]::GetFullPath((Join-Path $ProjectRoot "node_modules"))
+    $expectedPath = [IO.Path]::GetFullPath("$ProjectRoot\node_modules")
+    if (-not [String]::Equals($dependenciesPath, $expectedPath, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Odmowa usuniecia nieoczekiwanej sciezki zaleznosci: $dependenciesPath"
+    }
+    if (-not (Test-Path -LiteralPath $dependenciesPath)) {
+        return
+    }
+
+    Write-Step "Usuwanie niedokonczonej instalacji zaleznosci"
+    for ($attempt = 1; $attempt -le 4; $attempt++) {
+        & $env:ComSpec /d /c "rmdir /s /q `"$dependenciesPath`""
+        if (-not (Test-Path -LiteralPath $dependenciesPath)) {
+            return
+        }
+        if ($attempt -lt 4) {
+            Start-Sleep -Seconds 2
+        }
+    }
+
+    throw "Nie mozna wyczyscic katalogu node_modules. Zamknij inne okna uruchamiajace PMBP, odczekaj chwile i uruchom setup-windows.cmd ponownie."
 }
 
 function Register-PmbpStartupTask {
@@ -142,9 +184,8 @@ $npmCommand = $commands[1]
 $nodeVersionText = (& $nodeCommand --version).Trim().TrimStart("v")
 $nodeVersionParts = $nodeVersionText.Split(".")
 $nodeMajor = [int]$nodeVersionParts[0]
-$nodeMinor = [int]$nodeVersionParts[1]
-if (($nodeMajor -lt 20) -or (($nodeMajor -eq 20) -and ($nodeMinor -lt 9))) {
-    throw "Wykryto Node.js $nodeVersionText. PMBP wymaga co najmniej Node.js 20.9; zalecana jest wersja 22 LTS."
+if ($nodeMajor -lt 22) {
+    throw "Wykryto Node.js $nodeVersionText. PMBP wymaga Node.js 22 lub nowszego; zalecana jest aktualna wersja LTS."
 }
 Write-Host "Node.js: $nodeVersionText" -ForegroundColor Green
 Write-Host "npm: $(& $npmCommand --version)" -ForegroundColor Green
@@ -158,6 +199,8 @@ if (($Mode -eq "Production") -and (-not $NoAutoStart)) {
         Start-Sleep -Seconds 2
     }
 }
+
+Stop-PmbpNodeProcesses -ProjectRoot $projectRoot
 
 $envPath = Join-Path $projectRoot ".env"
 $envExamplePath = Join-Path $projectRoot ".env.example"
@@ -180,9 +223,11 @@ if (-not (Test-Path -LiteralPath $envPath)) {
 
 # The repository lock file can be generated on macOS or Linux. npm 11 validates
 # optional, platform-specific packages during `npm ci` and can reject such a
-# lock file on Windows before it has a chance to add the Windows packages.
-# `npm install` keeps locked versions and safely completes the platform graph.
-Invoke-Checked "Instalowanie zaleznosci dla Windows" $npmCommand @("install", "--no-audit", "--no-fund")
+# lock file on Windows. It can also attempt an unnecessary node-gyp rebuild of
+# better-sqlite3 even though the package contains a ready Windows binary.
+Remove-GeneratedDependencies -ProjectRoot $projectRoot
+Invoke-Checked "Instalowanie zaleznosci dla Windows" $npmCommand @("install", "--ignore-scripts", "--no-audit", "--no-fund")
+Invoke-Checked "Sprawdzanie modulu bazy danych" $nodeCommand @("-e", "const Database=require('better-sqlite3');const db=new Database(':memory:');db.prepare('select 1').get();db.close();")
 
 Invoke-Checked "Przygotowanie katalogow, bazy, migracji i konta startowego" $npmCommand @("run", "setup")
 
