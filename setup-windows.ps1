@@ -178,11 +178,11 @@ if (-not (Test-Path -LiteralPath $envPath)) {
     Write-Host "Zachowano istniejacy plik .env." -ForegroundColor Yellow
 }
 
-if (Test-Path -LiteralPath (Join-Path $projectRoot "package-lock.json")) {
-    Invoke-Checked "Instalowanie zaleznosci" $npmCommand @("ci", "--no-audit", "--no-fund")
-} else {
-    Invoke-Checked "Instalowanie zaleznosci" $npmCommand @("install", "--no-audit", "--no-fund")
-}
+# The repository lock file can be generated on macOS or Linux. npm 11 validates
+# optional, platform-specific packages during `npm ci` and can reject such a
+# lock file on Windows before it has a chance to add the Windows packages.
+# `npm install` keeps locked versions and safely completes the platform graph.
+Invoke-Checked "Instalowanie zaleznosci dla Windows" $npmCommand @("install", "--no-audit", "--no-fund")
 
 Invoke-Checked "Przygotowanie katalogow, bazy, migracji i konta startowego" $npmCommand @("run", "setup")
 
