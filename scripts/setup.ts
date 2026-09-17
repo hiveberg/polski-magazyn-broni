@@ -8,12 +8,13 @@ for (const dir of [dataDir, resolve(dataDir, "uploads"), resolve(dataDir, "backu
 
 process.env.DATABASE_URL ??= "file:../data/database.sqlite";
 const commands = [
-  { command: "npx", args: ["prisma", "generate"] },
-  { command: process.execPath, args: ["--import", "tsx", "scripts/migrate.ts"] },
-  { command: process.execPath, args: ["--import", "tsx", "prisma/seed.ts"] },
+  { command: process.execPath, args: [resolve(root, "node_modules/prisma/build/index.js"), "generate"] },
+  { command: process.execPath, args: ["--import", "tsx", resolve(root, "scripts/migrate.ts")] },
+  { command: process.execPath, args: ["--import", "tsx", resolve(root, "prisma/seed.ts")] },
 ];
 for (const { command, args } of commands) {
-  const result = spawnSync(command, args, { cwd: root, env: process.env, stdio: "inherit", shell: process.platform === "win32" });
+  const result = spawnSync(command, args, { cwd: root, env: process.env, stdio: "inherit", shell: false });
+  if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
